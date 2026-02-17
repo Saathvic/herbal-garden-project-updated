@@ -181,7 +181,7 @@ function Fountain() {
 
 function Grassland() {
   const grassRef = useRef()
-  const GARDEN_BOUNDARY = 14.5 // Garden is 30x30, so ±15 but with wall thickness
+  const GARDEN_BOUNDARY = 16.5 // Garden is 34x34, so ±17 but with wall thickness
   
   // Minimal grass count for performance
   const GRASS_COUNT = 2000
@@ -291,7 +291,7 @@ function Grassland() {
 }
 
 function GardenBoundary() {
-  const size = 30
+  const size = 34
   const wallHeight = 0.6
   const wallThickness = 0.4
   
@@ -1082,7 +1082,7 @@ export default function App() {
           
           {/* Ground plane */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-            <planeGeometry args={[35, 35]} />
+            <planeGeometry args={[40, 40]} />
             <meshStandardMaterial color="#4a7a52" roughness={0.95} />
           </mesh>
           
