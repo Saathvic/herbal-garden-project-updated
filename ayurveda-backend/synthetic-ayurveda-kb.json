@@ -1,0 +1,98 @@
+[
+  {
+    "id": "ashwagandha-pdf-001",
+    "plantName": "Ashwagandha",
+    "scientificName": "Withania somnifera",
+    "category": "Adaptogen",
+    "conditions": ["stress", "anxiety", "insomnia", "fatigue", "low stamina", "muscle weakness"],
+    "preparation": "Take 1-2 tsp of root powder with warm milk before bed. Can also be taken as capsules (300-600mg).",
+    "dosha": "Balances Vata and Kapha",
+    "region": "Rajasthan, Madhya Pradesh, dry regions of India",
+    "source": "Synthetic PDF - Ayurvedic Pharmacopoeia Vol. II",
+    "text": "Ashwagandha (Withania somnifera), known as Indian Ginseng or Winter Cherry, is one of the most powerful Rasayana (rejuvenative) herbs in Ayurveda. Its name literally means 'smell of horse,' indicating that the herb imparts the strength and vitality of a horse. Ashwagandha is classified as a Medhya Rasayana — a tonic for the mind and intellect. It is widely used for managing chronic stress, anxiety, and insomnia. The root contains withanolides, which have anti-inflammatory, antitumor, and adaptogenic properties. It strengthens the immune system, enhances muscle strength, and improves reproductive health. Ashwagandha balances Vata and Kapha doshas while mildly increasing Pitta in excess. Traditional preparation involves mixing 1-2 teaspoons of root powder in warm milk with a pinch of cardamom and drinking before bedtime."
+  },
+  {
+    "id": "turmeric-pdf-002",
+    "plantName": "Turmeric",
+    "scientificName": "Curcuma longa",
+    "category": "Anti-inflammatory",
+    "conditions": ["inflammation", "joint pain", "skin disorders", "liver problems", "wound healing", "arthritis"],
+    "preparation": "Mix 1/2 tsp turmeric powder in warm milk with black pepper. Apply paste topically for wounds.",
+    "dosha": "Balances all three doshas (Tridoshic)",
+    "region": "Throughout India, especially South India and Maharashtra",
+    "source": "Synthetic PDF - Charaka Samhita Chapter on Haridra",
+    "text": "Turmeric (Curcuma longa), called Haridra in Ayurveda, is revered as the 'Golden Goddess' of Indian medicine. It is one of the most extensively researched Ayurvedic herbs with over 10,000 peer-reviewed studies. The active compound curcumin is responsible for its powerful anti-inflammatory, antioxidant, and antimicrobial properties. In Ayurveda, turmeric is considered a blood purifier (Raktashodhak) and is used to treat skin disorders, liver congestion, joint inflammation, and wounds. It is tridoshic, balancing Vata, Pitta, and Kapha. The famous 'Golden Milk' (Haldi Doodh) is a traditional Ayurvedic remedy — mix half a teaspoon of turmeric with warm milk and a pinch of black pepper (to enhance bioavailability by 2000%). Turmeric paste is applied topically for cuts, burns, and acne. It is also a key ingredient in many Ayurvedic formulations including Haridra Khanda and Kanchnar Guggulu."
+  },
+  {
+    "id": "brahmi-pdf-003",
+    "plantName": "Brahmi",
+    "scientificName": "Bacopa monnieri",
+    "category": "Nootropic",
+    "conditions": ["poor memory", "lack of concentration", "anxiety", "ADHD", "cognitive decline", "epilepsy"],
+    "preparation": "Take 2-3 fresh leaves daily or 1/2 tsp powder with ghee or honey on empty stomach.",
+    "dosha": "Balances Vata and Pitta",
+    "region": "Throughout India, especially wetlands and marshy areas",
+    "source": "Synthetic PDF - Sushruta Samhita on Medhya Rasayana",
+    "text": "Brahmi (Bacopa monnieri) is the premier brain tonic in Ayurveda, named after Lord Brahma, the creator deity and god of knowledge. It is classified as a Medhya Rasayana — a rejuvenating herb specifically for the mind and intellect. Brahmi contains bacosides A and B, which enhance nerve impulse transmission and improve memory consolidation. It is traditionally used for enhancing memory, sharpening concentration, reducing anxiety, and managing ADHD symptoms in children. Brahmi also has anti-epileptic properties and is used in managing seizure disorders. It balances Vata and Pitta doshas with its cooling, bitter properties. Traditional preparation involves taking 2-3 fresh leaves daily or consuming half a teaspoon of dried powder with ghee or honey on an empty stomach. Brahmi Ghritam (brahmi medicated ghee) is a classical Ayurvedic preparation for cognitive enhancement. Regular use for 3-6 months is recommended for maximum benefits."
+  },
+  {
+    "id": "giloy-pdf-004",
+    "plantName": "Giloy",
+    "scientificName": "Tinospora cordifolia",
+    "category": "Immunomodulator",
+    "conditions": ["fever", "weak immunity", "dengue", "malaria", "chronic fever", "autoimmune disorders"],
+    "preparation": "Boil 4-6 inches of fresh stem in water for 10 minutes. Drink the decoction twice daily.",
+    "dosha": "Balances all three doshas (Tridoshic)",
+    "region": "Throughout India, tropical deciduous forests",
+    "source": "Synthetic PDF - Ashtanga Hridayam on Jwara Chikitsa",
+    "text": "Giloy (Tinospora cordifolia), called Guduchi or Amrita (nectar of immortality) in Ayurveda, is one of three Amrit plants in Vedic tradition. It is the foremost immunomodulatory herb in Ayurvedic medicine. Giloy enhances the body's natural defense mechanism by boosting both innate and adaptive immunity. It contains tinosporin, berberine, and other alkaloids that have antipyretic, anti-inflammatory, and anti-malarial properties. In Ayurveda, Giloy is the primary herb for treating all types of fever (Jwara), including chronic, recurrent, and fever of unknown origin. During dengue outbreaks, Giloy juice has been widely used to increase platelet count. It is tridoshic, harmonizing Vata, Pitta, and Kapha. Traditional preparation involves boiling 4-6 inches of fresh stem in 2 cups of water until reduced to 1 cup. This decoction (Kwath) is consumed twice daily. Giloy Satva (starch extract) is another popular preparation with concentrated immune-boosting properties."
+  },
+  {
+    "id": "triphala-pdf-005",
+    "plantName": "Triphala",
+    "scientificName": "Terminalia chebula, Terminalia bellirica, Phyllanthus emblica",
+    "category": "Digestive Rejuvenative",
+    "conditions": ["constipation", "poor digestion", "toxin accumulation", "eye problems", "obesity", "skin issues"],
+    "preparation": "Mix 1 tsp Triphala powder in warm water. Drink before bed or on empty stomach.",
+    "dosha": "Balances all three doshas (Tridoshic)",
+    "region": "Throughout India",
+    "source": "Synthetic PDF - Charaka Samhita on Rasayana Therapy",
+    "text": "Triphala is the most iconic polyherbal formulation in Ayurveda, composed of three fruits: Amalaki (Phyllanthus emblica), Bibhitaki (Terminalia bellirica), and Haritaki (Terminalia chebula). Each fruit corresponds to and balances one of the three doshas — Amalaki for Pitta, Bibhitaki for Kapha, and Haritaki for Vata — making Triphala truly tridoshic. It is described in Charaka Samhita as the greatest Rasayana (rejuvenative) for the digestive system. Triphala gently cleanses the colon, promotes regular bowel movements without creating dependency, and aids in detoxification (Ama Pachana). It is also an excellent eye tonic — Triphala eye wash is used to strengthen vision. Rich in vitamin C, gallic acid, and tannins, it has powerful antioxidant properties. The traditional preparation involves mixing one teaspoon of Triphala Churna (powder) in warm water and consuming it before bedtime. For eye care, Triphala is soaked overnight in water and the strained liquid is used as an eye wash. Regular use promotes longevity and overall wellness."
+  },
+  {
+    "id": "shatavari-pdf-006",
+    "plantName": "Shatavari",
+    "scientificName": "Asparagus racemosus",
+    "category": "Female Reproductive Tonic",
+    "conditions": ["hormonal imbalance", "menstrual irregularity", "menopause symptoms", "lactation problems", "infertility", "PCOS"],
+    "preparation": "Mix 1 tsp Shatavari powder in warm milk with honey. Take twice daily.",
+    "dosha": "Balances Vata and Pitta",
+    "region": "Throughout India, especially Himalayan foothills",
+    "source": "Synthetic PDF - Bhavaprakasha Nighantu on Stree Roga",
+    "text": "Shatavari (Asparagus racemosus) is the queen of herbs in Ayurveda for women's health. Its name translates to 'she who possesses a hundred husbands,' indicating its rejuvenating power for the female reproductive system. Shatavari is classified as both a Rasayana (rejuvenative) and a Vajikarana (aphrodisiac) herb. It contains steroidal saponins (Shatavarins) and isoflavones that have phytoestrogenic activity, helping balance hormonal levels naturally. Shatavari is the primary herb for managing menstrual irregularities, PMS, menopausal symptoms (hot flashes, mood swings, vaginal dryness), and PCOS. It is an excellent galactagogue — it enhances breast milk production in nursing mothers. Shatavari also nourishes the uterine lining, supporting fertility and healthy conception. It balances Vata and Pitta doshas with its sweet, bitter, cooling properties. Traditional preparation involves mixing one teaspoon of Shatavari Churna in warm milk with a spoonful of honey, taken twice daily. Shatavari Ghritam (medicated ghee) is a classical formulation for deeper tissue nourishment."
+  },
+  {
+    "id": "trikatu-pdf-007",
+    "plantName": "Trikatu",
+    "scientificName": "Piper nigrum, Piper longum, Zingiber officinale",
+    "category": "Digestive Stimulant",
+    "conditions": ["sluggish digestion", "cold", "congestion", "obesity", "high cholesterol", "low metabolism"],
+    "preparation": "Mix 1/4 tsp Trikatu powder with honey. Take before meals.",
+    "dosha": "Balances Kapha and Vata (increases Pitta)",
+    "region": "Throughout India",
+    "source": "Synthetic PDF - Sharangdhara Samhita on Agni Deepana",
+    "text": "Trikatu is a classical Ayurvedic formulation meaning 'three pungents,' composed of Black Pepper (Piper nigrum), Long Pepper (Piper longum), and Ginger (Zingiber officinale). It is the most important Agni Deepana (digestive fire stimulant) formulation in Ayurveda. Trikatu directly kindles Jatharagni (the central digestive fire) and helps burn Ama (metabolic toxins) accumulated in the body. It enhances the bioavailability of nutrients and other herbs — this is why it is included in many Ayurvedic compound formulations. Trikatu is highly effective for Kapha-related conditions: respiratory congestion, excess mucus, cold, sluggish metabolism, obesity, and high cholesterol. The piperine in black pepper increases absorption of curcumin (from turmeric) by 2000%. It strongly balances Kapha and Vata doshas but increases Pitta, so it should be used cautiously by Pitta-dominant individuals. Traditional preparation involves mixing 1/4 teaspoon of Trikatu Churna with a teaspoon of honey and consuming 15 minutes before meals. It can also be taken with warm water for respiratory congestion."
+  },
+  {
+    "id": "manjistha-pdf-008",
+    "plantName": "Manjistha",
+    "scientificName": "Rubia cordifolia",
+    "category": "Blood Purifier",
+    "conditions": ["acne", "eczema", "pigmentation", "blood impurities", "lymphatic congestion", "skin allergies"],
+    "preparation": "Take 1/2 tsp powder with warm water twice daily. Apply paste with honey for skin.",
+    "dosha": "Balances Pitta and Kapha",
+    "region": "Himalayan region, Western Ghats",
+    "source": "Synthetic PDF - Dhanvantari Nighantu on Raktashodhak Herbs",
+    "text": "Manjistha (Rubia cordifolia), known as Indian Madder, is considered the best blood purifier (Raktashodhak) and lymph system cleanser in Ayurveda. It has been used for over 3000 years to treat skin disorders, improve complexion, and clear blood toxins. Manjistha contains alizarin, purpurin, and rubiadin — anthraquinones that have anti-inflammatory, antibacterial, and hepatoprotective properties. In Ayurveda, most skin diseases are rooted in Rakta Dushti (blood vitiation) and Manjistha directly addresses this root cause. It is highly effective for acne, eczema, psoriasis, hyperpigmentation, melasma, and non-healing wounds. Manjistha also supports the lymphatic system, helping clear congestion and reduce swelling. It has an affinity for the Rasa and Rakta Dhatus (plasma and blood tissues). Manjistha balances Pitta and Kapha doshas. Traditional internal use involves taking half a teaspoon of powder with warm water twice daily after meals. For external application, Manjistha powder is mixed with honey or rose water to create a face pack for glowing, clear skin."
+  }
+]

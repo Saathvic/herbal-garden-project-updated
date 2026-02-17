@@ -1,0 +1,58 @@
+{
+  "nw-1": {
+    "name": "Tulsi",
+    "scientific": "Ocimum sanctum",
+    "use": "Immunity booster, respiratory relief, stress reduction",
+    "preparation": "Brew fresh leaves in hot water for 5 mins. Drink 2-3 cups daily.",
+    "model": "a_cloesup_shot_of_tulsi_plant.glb"
+  },
+  "nw-2": {
+    "name": "Coriander",
+    "scientific": "Coriandrum sativum",
+    "use": "Stress relief, energy enhancement, digestive aid",
+    "preparation": "Use fresh leaves in cooking or as garnish.",
+    "model": "coriander-compressed.glb"
+  },
+  "ne-1": {
+    "name": "Curry Leaves",
+    "scientific": "Murraya koenigii",
+    "use": "Memory enhancement, focus improvement, anxiety relief",
+    "preparation": "Add to tempering for dishes or chew fresh leaves.",
+    "model": "Curry leaves 3d model.glb"
+  },
+  "ne-2": {
+    "name": "Neem",
+    "scientific": "Azadirachta indica",
+    "use": "Blood purifier, skin healing, antibacterial, antifungal",
+    "preparation": "Boil leaves in water or chew fresh leaves on empty stomach.",
+    "model": "Tulsi.glb"
+  },
+  "sw-1": {
+    "name": "Amla",
+    "scientific": "Phyllanthus emblica",
+    "use": "Skin healing, immunity boost, vitamin C source",
+    "preparation": "Eat fresh fruit or take powder with water.",
+    "model": "amla_plant_containing_fruits.glb"
+  },
+  "sw-2": {
+    "name": "Lemongrass",
+    "scientific": "Cymbopogon citratus",
+    "use": "Anti-inflammatory, antioxidant, detoxification",
+    "preparation": "Boil stalks in water for tea.",
+    "model": "lemon_grass.glb"
+  },
+  "se-1": {
+    "name": "Mint",
+    "scientific": "Mentha spicata",
+    "use": "Digestive aid, headache relief, breath freshener",
+    "preparation": "Steep 8-10 fresh leaves in hot water for 5 mins as tea.",
+    "model": "mint_freshness.glb"
+  },
+  "se-2": {
+    "name": "Aloe Vera",
+    "scientific": "Aloe barbadensis miller",
+    "use": "Skin healing, burns relief, digestive health, immunity boost",
+    "preparation": "Extract gel from leaves and apply topically or consume with water.",
+    "model": "aloe_vera_plant (1).glb"
+  }
+}

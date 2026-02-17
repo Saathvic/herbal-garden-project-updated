@@ -1,0 +1,128 @@
+[
+  {
+    "condition": "Stress and Anxiety",
+    "remedies": [
+      {
+        "plantName": "Ashwagandha",
+        "scientificName": "Withania somnifera",
+        "preparation": "For stress and anxiety, take 1-2 teaspoons of Ashwagandha root powder mixed with a cup of warm milk before bed. A pinch of cardamom can be added for better digestion and flavor. Consistent use for at least 3 months is recommended for adaptogenic benefits.",
+        "source": "Synthetic PDF - Ayurvedic Pharmacopoeia Vol. II"
+      },
+      {
+        "plantName": "Brahmi",
+        "scientificName": "Bacopa monnieri",
+        "preparation": "To reduce anxiety and calm the mind, consume 2-3 fresh Brahmi leaves daily on an empty stomach. Alternatively, take 1/2 teaspoon of Brahmi powder with ghee or honey.",
+        "source": "Synthetic PDF - Sushruta Samhita on Medhya Rasayana"
+      },
+      {
+        "plantName": "Tulsi",
+        "scientificName": "Ocimum sanctum",
+        "preparation": "For stress reduction, brew a tea with 5-6 fresh Tulsi leaves in hot water for 5 minutes. Drink 2-3 cups daily to help calm the nervous system.",
+        "source": "Ayurvedic Pharmacopoeia of India"
+      }
+    ]
+  },
+  {
+    "condition": "Cough, Cold, and Immunity",
+    "remedies": [
+      {
+        "plantName": "Giloy",
+        "scientificName": "Tinospora cordifolia",
+        "preparation": "For fevers and to boost immunity, boil a 4-6 inch piece of fresh Giloy stem in 2 cups of water until it reduces to 1 cup. Drink this decoction twice a day. This is particularly useful for chronic fevers.",
+        "source": "Synthetic PDF - Ashtanga Hridayam on Jwara Chikitsa"
+      },
+      {
+        "plantName": "Trikatu",
+        "scientificName": "Piper nigrum, Piper longum, Zingiber officinale",
+        "preparation": "To clear respiratory congestion and relieve a cold, mix 1/4 teaspoon of Trikatu powder with 1 teaspoon of honey and take it 15-20 minutes before meals. This blend acts as a powerful decongestant.",
+        "source": "Synthetic PDF - Sharangdhara Samhita on Agni Deepana"
+      },
+      {
+        "plantName": "Lemongrass",
+        "scientificName": "Cymbopogon citratus",
+        "preparation": "To relieve cold symptoms and fever, boil a few fresh stalks of Lemongrass in water to make a therapeutic tea. Its warming nature helps balance Kapha dosha.",
+        "source": "Traditional Ayurvedic Practice"
+      }
+    ]
+  },
+  {
+    "condition": "Indigestion and Digestive Health",
+    "remedies": [
+      {
+        "plantName": "Triphala",
+        "scientificName": "Terminalia chebula, Terminalia bellirica, Phyllanthus emblica",
+        "preparation": "For constipation and to promote healthy digestion, mix 1 teaspoon of Triphala powder in a glass of warm water and drink it before bedtime. This acts as a gentle, non-habit-forming laxative.",
+        "source": "Synthetic PDF - Charaka Samhita on Rasayana Therapy"
+      },
+      {
+        "plantName": "Coriander",
+        "scientificName": "Coriandrum sativum",
+        "preparation": "To alleviate bloating and indigestion, boil 1 teaspoon of coriander seeds in a cup of water for 5 minutes. Strain and drink the tea after meals.",
+        "source": "Charaka Samhita"
+      },
+      {
+        "plantName": "Mint",
+        "scientificName": "Mentha spicata",
+        "preparation": "For indigestion, nausea, or gas, steep 8-10 fresh mint leaves in a cup of hot water for 5-7 minutes. This soothing tea pacifies an upset stomach.",
+        "source": "Bhavaprakasha Nighantu"
+      }
+    ]
+  },
+  {
+    "condition": "Joint Pain and Inflammation",
+    "remedies": [
+      {
+        "plantName": "Turmeric",
+        "scientificName": "Curcuma longa",
+        "preparation": "For joint pain and inflammation, drink 'Golden Milk'. Mix 1/2 teaspoon of turmeric powder and a pinch of black pepper (to increase absorption) in a cup of warm milk. For topical relief, a paste of turmeric powder and water can be applied to the affected joint.",
+        "source": "Synthetic PDF - Charaka Samhita Chapter on Haridra"
+      },
+      {
+        "plantName": "Ashwagandha",
+        "scientificName": "Withania somnifera",
+        "preparation": "The anti-inflammatory properties of Ashwagandha can help with joint pain. Take 1-2 teaspoons of the root powder with warm milk daily. This also helps strengthen the muscles supporting the joints.",
+        "source": "Synthetic PDF - Ayurvedic Pharmacopoeia Vol. II"
+      }
+    ]
+  },
+  {
+    "condition": "Memory and Concentration",
+    "remedies": [
+      {
+        "plantName": "Brahmi",
+        "scientificName": "Bacopa monnieri",
+        "preparation": "To enhance memory and concentration, take 1/2 teaspoon of Brahmi powder mixed with a teaspoon of ghee or honey on an empty stomach in the morning. Consistent use for at least 3 months is recommended.",
+        "source": "Synthetic PDF - Sushruta Samhita on Medhya Rasayana"
+      },
+      {
+        "plantName": "Ashwagandha",
+        "scientificName": "Withania somnifera",
+        "preparation": "As a tonic for the mind (Medhya Rasayana), Ashwagandha can improve cognitive function. Take 1 teaspoon of the root powder with warm milk daily.",
+        "source": "Synthetic PDF - Ayurvedic Pharmacopoeia Vol. II"
+      }
+    ]
+  },
+  {
+    "condition": "Skin Health and Detoxification",
+    "remedies": [
+      {
+        "plantName": "Manjistha",
+        "scientificName": "Rubia cordifolia",
+        "preparation": "For acne, eczema, or pigmentation, take 1/2 teaspoon of Manjistha powder with warm water twice a day after meals. For external use, a face pack can be made by mixing Manjistha powder with honey or rose water.",
+        "source": "Synthetic PDF - Dhanvantari Nighantu on Raktashodhak Herbs"
+      },
+      {
+        "plantName": "Neem",
+        "scientificName": "Azadirachta indica",
+        "preparation": "For skin allergies and infections, a paste of fresh Neem leaves can be applied topically. Neem leaf tea (boil 5-7 leaves in water) can be consumed for internal blood purification, but it is very bitter.",
+        "source": "Sushruta Samhita"
+      },
+      {
+        "plantName": "Amla",
+        "scientificName": "Phyllanthus emblica",
+        "preparation": "For glowing skin and detoxification, consume 1-2 fresh Amla fruits daily or take 1 teaspoon of Amla powder with warm water in the morning.",
+        "source": "Charaka Samhita"
+      }
+    ]
+  }
+]

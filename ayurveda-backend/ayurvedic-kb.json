@@ -1,0 +1,98 @@
+[
+  {
+    "id": "tulsi-001",
+    "plantName": "Tulsi",
+    "scientificName": "Ocimum sanctum",
+    "category": "Adaptogen",
+    "conditions": ["weak immunity", "cold", "cough", "respiratory infection", "stress", "anxiety"],
+    "preparation": "Brew fresh leaves in hot water for 5 mins. Drink 2-3 cups daily.",
+    "dosha": "Balances Kapha and Vata",
+    "region": "Throughout India",
+    "source": "Ayurvedic Pharmacopoeia of India",
+    "text": "Tulsi (Ocimum sanctum), known as Holy Basil, is one of the most sacred plants in Ayurveda. It is a powerful adaptogen used for immunity boosting, respiratory relief, and stress reduction. Tulsi balances Kapha and Vata doshas. It contains eugenol, which has anti-inflammatory and antibacterial properties. Traditional preparation involves brewing fresh leaves in hot water for 5 minutes and drinking 2-3 cups daily. It is commonly used for cold, cough, sore throat, and general wellness."
+  },
+  {
+    "id": "coriander-002",
+    "plantName": "Coriander",
+    "scientificName": "Coriandrum sativum",
+    "category": "Digestive",
+    "conditions": ["stress", "fatigue", "indigestion", "bloating", "low energy"],
+    "preparation": "Use fresh leaves in cooking or as garnish. Seeds can be boiled into tea.",
+    "dosha": "Balances all three doshas (Tridoshic)",
+    "region": "Pan-India",
+    "source": "Charaka Samhita",
+    "text": "Coriander (Coriandrum sativum) is a tridoshic herb used extensively in Ayurvedic cooking and medicine. It aids digestion, relieves stress, and enhances energy. Coriander seeds are cooling and help pacify Pitta dosha. The leaves are rich in vitamins A, C, and K. It is traditionally used for bloating, indigestion, and as a mild diuretic. Fresh leaves can be used in cooking while seeds are boiled into a therapeutic tea."
+  },
+  {
+    "id": "curry-leaves-003",
+    "plantName": "Curry Leaves",
+    "scientificName": "Murraya koenigii",
+    "category": "Neuroprotective",
+    "conditions": ["poor memory", "lack of focus", "anxiety", "hair loss", "diabetes"],
+    "preparation": "Add to tempering for dishes or chew fresh leaves on empty stomach.",
+    "dosha": "Balances Kapha and Vata",
+    "region": "South India, Western Ghats",
+    "source": "Sushruta Samhita",
+    "text": "Curry Leaves (Murraya koenigii) are a neuroprotective herb prized in Ayurveda for memory enhancement and focus improvement. They contain carbazole alkaloids with antioxidant properties that protect brain cells. Curry leaves also help manage blood sugar levels and promote hair growth. They balance Kapha and Vata doshas. Traditional use involves adding them to tempering in cooking or chewing fresh leaves on an empty stomach for maximum benefit."
+  },
+  {
+    "id": "neem-004",
+    "plantName": "Neem",
+    "scientificName": "Azadirachta indica",
+    "category": "Antimicrobial",
+    "conditions": ["skin disease", "acne", "blood impurity", "bacterial infection", "fungal infection", "wound"],
+    "preparation": "Boil leaves in water for topical use or chew fresh leaves on empty stomach.",
+    "dosha": "Balances Pitta and Kapha",
+    "region": "Throughout India",
+    "source": "Ayurvedic Pharmacopoeia of India",
+    "text": "Neem (Azadirachta indica) is called 'Sarva Roga Nivarini' meaning the curer of all ailments in Ayurveda. It is a powerful blood purifier with strong antibacterial, antifungal, and antiviral properties. Neem is especially effective for skin conditions like acne, eczema, and wounds. It balances Pitta and Kapha doshas. The leaves can be boiled in water for topical application or chewed on an empty stomach. Neem oil is used for scalp and skin treatments."
+  },
+  {
+    "id": "amla-005",
+    "plantName": "Amla",
+    "scientificName": "Phyllanthus emblica",
+    "category": "Rejuvenative",
+    "conditions": ["skin problems", "weak immunity", "vitamin C deficiency", "hair loss", "premature aging", "poor digestion"],
+    "preparation": "Eat fresh fruit, take powder with water, or consume as juice.",
+    "dosha": "Balances all three doshas (Tridoshic)",
+    "region": "Throughout India",
+    "source": "Charaka Samhita",
+    "text": "Amla (Phyllanthus emblica), or Indian Gooseberry, is the richest natural source of Vitamin C and a cornerstone Rasayana (rejuvenative) in Ayurveda. It is tridoshic, balancing Vata, Pitta, and Kapha. Amla boosts immunity, promotes skin healing, prevents premature aging, and strengthens hair. It is a key ingredient in Triphala and Chyawanprash. Fresh fruit can be eaten directly, or powder can be taken with water. It supports digestive health and enhances iron absorption."
+  },
+  {
+    "id": "lemongrass-006",
+    "plantName": "Lemongrass",
+    "scientificName": "Cymbopogon citratus",
+    "category": "Detoxifying",
+    "conditions": ["inflammation", "toxin buildup", "fever", "cold", "muscle pain", "digestive issues"],
+    "preparation": "Boil stalks in water for tea. Can also be used in cooking.",
+    "dosha": "Balances Kapha and Vata",
+    "region": "South India, Kerala",
+    "source": "Traditional Ayurvedic Practice",
+    "text": "Lemongrass (Cymbopogon citratus) is a detoxifying herb used in Ayurveda for its anti-inflammatory and antioxidant properties. It helps flush toxins from the body, reduces fever, and relieves cold symptoms. Lemongrass tea is a common Ayurvedic remedy for muscle pain and digestive discomfort. It balances Kapha and Vata doshas with its warming, citrusy nature. Preparation involves boiling fresh stalks in water to make a therapeutic tea."
+  },
+  {
+    "id": "mint-007",
+    "plantName": "Mint",
+    "scientificName": "Mentha spicata",
+    "category": "Digestive",
+    "conditions": ["indigestion", "nausea", "headache", "bad breath", "irritable bowel", "gas"],
+    "preparation": "Steep 8-10 fresh leaves in hot water for 5 mins as tea.",
+    "dosha": "Balances Pitta and Kapha",
+    "region": "Throughout India",
+    "source": "Bhavaprakasha Nighantu",
+    "text": "Mint (Mentha spicata) is a cooling digestive herb widely used in Ayurveda. It relieves indigestion, nausea, headaches, and freshens breath. Mint has a cooling effect that pacifies Pitta dosha and its light nature helps balance Kapha. The menthol content provides analgesic and anti-spasmodic effects. Traditional preparation involves steeping 8-10 fresh leaves in hot water for 5 minutes to make a soothing tea. It is also used in chutneys and digestive formulations."
+  },
+  {
+    "id": "aloe-vera-008",
+    "plantName": "Aloe Vera",
+    "scientificName": "Aloe barbadensis miller",
+    "category": "Healing",
+    "conditions": ["burns", "skin irritation", "wound healing", "constipation", "weak immunity", "acidity"],
+    "preparation": "Extract gel from leaves and apply topically or consume with water.",
+    "dosha": "Balances Pitta primarily",
+    "region": "Rajasthan, Gujarat, arid regions",
+    "source": "Charaka Samhita",
+    "text": "Aloe Vera (Aloe barbadensis miller), known as Kumari in Ayurveda, is a versatile healing plant. It is primarily used for skin conditions including burns, wounds, and irritation due to its cooling, soothing gel. Internally, Aloe Vera juice supports digestion, relieves constipation, and boosts immunity. It strongly pacifies Pitta dosha with its cooling nature. The gel is extracted directly from the leaf and applied topically or mixed with water for internal use. It is considered a powerful Rasayana for skin health."
+  }
+]
