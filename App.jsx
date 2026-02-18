@@ -996,8 +996,23 @@ function PlantSettingsCard({ bedId }) {
   )
 }
 
+function Crosshair({ locked }) {
+  if (!locked) {
+    return (
+      <div className="click-to-enter">
+        <div className="click-to-enter-label">🖱 Click to enter garden</div>
+        <div className="click-to-enter-sub">WASD to move · Mouse to look · Click to select</div>
+      </div>
+    )
+  }
+  return (
+    <div className="crosshair">
+      <div className="crosshair-dot" />
+    </div>
+  )
+}
+
 function SettingsPanel({ isOpen, onClose }) {
-  const { resetAll } = useSettings()
   const bedIds = Object.keys(plantData)
 
   if (!isOpen) return null
@@ -1026,9 +1041,26 @@ function SettingsPanel({ isOpen, onClose }) {
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [galleryPlantId, setGalleryPlantId] = useState(null)
+  const [pointerLocked, setPointerLocked] = useState(false)
 
   const openGallery = useCallback((plantId) => setGalleryPlantId(plantId), [])
   const closeGallery = useCallback(() => setGalleryPlantId(null), [])
+
+  // Track pointer lock state to show/hide crosshair
+  useEffect(() => {
+    const onLock = () => setPointerLocked(true)
+    const onUnlock = () => setPointerLocked(false)
+    document.addEventListener('pointerlockchange', onLock)
+    document.addEventListener('pointerlockchange', onUnlock)
+    // More reliable: listen to both lock/unlock
+    document.addEventListener('pointerlockchange', () => {
+      setPointerLocked(!!document.pointerLockElement)
+    })
+    return () => {
+      document.removeEventListener('pointerlockchange', onLock)
+      document.removeEventListener('pointerlockchange', onUnlock)
+    }
+  }, [])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -1053,6 +1085,9 @@ export default function App() {
     <SettingsProvider>
       <SelectionProvider>
         <div style={{ width: '100vw', height: '100vh' }}>
+          {/* Crosshair — shown only when pointer is locked */}
+          <Crosshair locked={pointerLocked} />
+
           {/* Settings toggle button */}
           <button
             className="settings-toggle-btn"
