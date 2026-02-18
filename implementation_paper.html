@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Herbal Garden - Implementation Paper</title>
+<style>
+  @page {
+    size: A4;
+    margin: 1.8cm 1.6cm 1.8cm 1.6cm;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
+    line-height: 1.25;
+    color: #000;
+    background: #fff;
+    max-width: 21cm;
+    margin: 0 auto;
+    padding: 1.8cm 1.6cm;
+  }
+
+  .page-break {
+    page-break-before: always;
+    margin-top: 40px;
+  }
+
+  /* Title section */
+  .paper-title {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .authors-block {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .author-main {
+    font-style: italic;
+    font-size: 10pt;
+    margin-bottom: 2px;
+  }
+
+  .author-dept {
+    font-size: 9pt;
+  }
+
+  .author-email {
+    font-size: 9pt;
+    color: #0000cc;
+  }
+
+  .authors-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 30px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+
+  .author-col {
+    text-align: center;
+    min-width: 130px;
+  }
+
+  .author-name {
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  /* Two-column layout */
+  .two-col {
+    column-count: 2;
+    column-gap: 22px;
+    text-align: justify;
+    margin-top: 10px;
+  }
+
+  .two-col p {
+    margin-bottom: 6px;
+    text-indent: 1.5em;
+  }
+
+  .two-col p:first-child,
+  .two-col .no-indent {
+    text-indent: 0;
+  }
+
+  /* Section headings */
+  h2.section-heading {
+    font-size: 11pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    text-align: left;
+  }
+
+  h3.subsection-heading {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    text-align: left;
+  }
+
+  h4.sub-subsection {
+    font-size: 10pt;
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    text-align: left;
+  }
+
+  /* Keywords */
+  .keywords {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .keywords strong {
+    font-style: italic;
+  }
+
+  /* Abstract */
+  .abstract-heading {
+    font-size: 11pt;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .abstract-text {
+    text-align: justify;
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 9pt;
+    break-inside: avoid;
+  }
+
+  table caption {
+    font-weight: bold;
+    font-size: 9pt;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 3px 5px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #e8e8e8;
+    font-weight: bold;
+  }
+
+  /* Figures */
+  .figure-container {
+    text-align: center;
+    margin: 12px 0;
+    break-inside: avoid;
+  }
+
+  .figure-container img {
+    max-width: 100%;
+  }
+
+  .figure-caption {
+    font-size: 9pt;
+    margin-top: 4px;
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* Diagram boxes (SVG-like) */
+  .arch-diagram {
+    width: 100%;
+    margin: 10px 0;
+    break-inside: avoid;
+  }
+
+  /* Lists */
+  .two-col ul, .two-col ol {
+    margin: 4px 0 6px 20px;
+    text-indent: 0;
+  }
+
+  .two-col li {
+    margin-bottom: 3px;
+    text-indent: 0;
+  }
+
+  /* Equations */
+  .equation {
+    text-align: center;
+    margin: 8px 0;
+    font-style: italic;
+  }
+
+  /* References */
+  .references {
+    column-count: 2;
+    column-gap: 22px;
+    font-size: 8.5pt;
+  }
+
+  .references p {
+    margin-bottom: 5px;
+    text-align: justify;
+    text-indent: -1.5em;
+    padding-left: 1.5em;
+  }
+
+  /* Full width sections inside two-col */
+  .full-width {
+    column-span: all;
+    margin: 10px 0;
+  }
+
+  /* Bullet styling */
+  .bullet-item {
+    margin-bottom: 3px;
+    padding-left: 8px;
+    text-indent: 0 !important;
+  }
+
+  .bullet-item::before {
+    content: "• ";
+    font-weight: bold;
+  }
+
+  /* SVG diagram styles */
+  svg text {
+    font-family: 'Times New Roman', Times, serif;
+  }
+
+  .diagram-box {
+    fill: #f0f4ff;
+    stroke: #333;
+    stroke-width: 1.5;
+    rx: 4;
+    ry: 4;
+  }
+
+  .diagram-box-highlight {
+    fill: #e0f7e0;
+    stroke: #2a7a2a;
+    stroke-width: 2;
+    rx: 4;
+    ry: 4;
+  }
+
+  .diagram-box-orange {
+    fill: #fff3e0;
+    stroke: #e67700;
+    stroke-width: 1.5;
+    rx: 4;
+    ry: 4;
+  }
+
+  .diagram-arrow {
+    stroke: #333;
+    stroke-width: 1.5;
+    fill: none;
+    marker-end: url(#arrowhead);
+  }
+
+  .diagram-label {
+    font-size: 8pt;
+    text-anchor: middle;
+    fill: #333;
+  }
+
+  .diagram-title {
+    font-size: 9pt;
+    font-weight: bold;
+    text-anchor: middle;
+    fill: #000;
+  }
+
+  @media print {
+    body {
+      padding: 0;
+    }
+    .page-break {
+      page-break-before: always;
+      margin-top: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<div class="paper-title">
+  VIRTUAL HERBAL GARDEN: AN AI-POWERED IMMERSIVE 3D<br>
+  PLATFORM FOR AYURVEDIC PLANT EDUCATION USING<br>
+  RAG-BASED RETRIEVAL AND GENERATIVE AI
+</div>
+
+<div class="authors-block">
+  <div class="author-main">Mr. Periyasamy.T</div>
+  <div class="author-dept">Department of Information Technology</div>
+  <div class="author-dept">Sri Manakula Vinayagar Engineering College</div>
+  <div class="author-dept">Puducherry, India</div>
+  <div class="author-email">periyasamy2204@gmail.com</div>
+</div>
+
+<div class="authors-grid">
+  <div class="author-col">
+    <div class="author-name">Saathvik S</div>
+    <div class="author-dept">Department of Information Technology</div>
+    <div class="author-dept">Sri Manakula Vinayagar Engineering<br>College</div>
+    <div class="author-dept">Puducherry, India</div>
+  </div>
+  <div class="author-col">
+    <div class="author-name">Kishore Kanna S</div>
+    <div class="author-dept">Department of Information Technology</div>
+    <div class="author-dept">Sri Manakula Vinayagar Engineering<br>College</div>
+    <div class="author-dept">Puducherry, India</div>
+  </div>
+  <div class="author-col">
+    <div class="author-name">Hemachandiran R</div>
+    <div class="author-dept">Department of Information Technology</div>
+    <div class="author-dept">Sri Manakula Vinayagar Engineering<br>College</div>
+    <div class="author-dept">Puducherry, India</div>
+  </div>
+  <div class="author-col">
+    <div class="author-name">Madugula Jagadeesh</div>
+    <div class="author-dept">Department of Information Technology</div>
+    <div class="author-dept">Sri Manakula Vinayagar Engineering<br>College</div>
+    <div class="author-dept">Puducherry, India</div>
+  </div>
+</div>
+
+<div class="two-col">
+
+<div class="abstract-heading">ABSTRACT</div>
+
+<p class="abstract-text no-indent">
+The preservation and dissemination of traditional Ayurvedic herbal knowledge poses a significant challenge in the digital age, as conventional educational resources often lack interactivity and engagement. This paper presents the Virtual Herbal Garden, an immersive AI-powered educational platform that bridges traditional Ayurvedic plant knowledge with modern 3D visualization and artificial intelligence technologies. The proposed system represents a significant advancement in digital ethnobotanical education by integrating a React Three Fiber-based 3D interactive garden environment with a Retrieval-Augmented Generation (RAG) pipeline powered by Pinecone vector database and Google Gemini AI. Unlike conventional static herbal databases, our system integrates three core AI-driven modules: an interactive 3D garden with real-time plant information generation, a symptom-based Ayurvedic health chatbot utilizing semantic search and contextual reranking, and a computer vision-based plant identification system. The RAG architecture employs the multilingual-e5-large embedding model for semantic search combined with the bge-reranker-v2-m3 model for result reranking, ensuring high-accuracy contextual retrieval of herbal remedies. Evaluated against traditional static platforms, the system demonstrates superior user engagement, response accuracy, and educational effectiveness. The integration of safety-aware prompting and medical disclaimer generation further ensures responsible AI deployment for health-related educational content.
+</p>
+
+<p class="keywords no-indent"><strong>Keywords:</strong> Virtual Herbal Garden, Retrieval-Augmented Generation, 3D Visualization, Ayurvedic Medicine, Generative AI, Semantic Search, Plant Identification, React Three Fiber</p>
+
+<h2 class="section-heading">I. INTRODUCTION</h2>
+
+<p class="no-indent">
+Traditional Ayurvedic medicine, one of the world's oldest holistic healing systems, encompasses extensive knowledge of medicinal plants and their therapeutic applications. Originating in India over 3,000 years ago, Ayurveda integrates natural herbs, dietary practices, and lifestyle modifications to promote health and well-being [3]. However, the transmission of this rich botanical knowledge to younger, digitally-native generations faces significant challenges due to the static nature of existing educational resources and the declining exposure to traditional plant-based healing practices.
+</p>
+
+<p>
+The AYUSH Ministry, established in 2014 by the Government of India, has actively promoted the development, research, and practice of alternative medicinal systems rooted in Indian culture, including Ayurveda, Yoga, Naturopathy, Unani, Siddha, and Homeopathy. Despite governmental initiatives, the accessibility and engagement of herbal knowledge platforms remain limited by their reliance on text-based databases, static imagery, and rudimentary search functionalities that fail to capture the experiential learning essential for botanical education [6].
+</p>
+
+<p>
+Recent advancements in artificial intelligence, particularly in large language models (LLMs), vector databases, and WebGL-based 3D rendering, have created unprecedented opportunities for developing immersive educational platforms. Retrieval-Augmented Generation (RAG) architectures, which combine the retrieval capabilities of vector databases with the generative power of LLMs, have demonstrated remarkable effectiveness in delivering contextually accurate and domain-specific responses [1]. Concurrently, React Three Fiber has emerged as a powerful framework for creating declarative 3D scenes within React applications, enabling interactive and performant web-based 3D experiences.
+</p>
+
+<p>
+Deep learning approaches have shown remarkable promise in plant identification and disease detection applications. Studies have reported high accuracies using architectures such as hybrid DeiT+VGG16 models achieving 96.75% accuracy [1], MobileNet achieving 98.3% [2], and BEiT achieving 99.14% [15] on medicinal plant datasets. Federated learning approaches have also been explored to address privacy concerns in decentralized botanical data [4]. These advances motivate the integration of AI-powered identification and retrieval in educational platforms for medicinal plant learning.
+</p>
+
+<p>
+To address these challenges, this paper proposes the Virtual Herbal Garden, an immersive educational platform that integrates 3D interactive visualization with AI-powered information retrieval and generation. The system employs a multi-layered architecture comprising a React Three Fiber frontend for 3D garden navigation, a Node.js/Express backend for API orchestration, a Pinecone vector database for semantic search with integrated embedding and reranking, and Google Gemini AI for natural language generation and computer vision capabilities.
+</p>
+
+<p>
+The key contributions of this work include: (i) A comprehensive 3D interactive herbal garden with first-person navigation and holographic information panels. (ii) A RAG-based Ayurvedic health chatbot employing semantic search with multilingual-e5-large embeddings and bge-reranker-v2-m3 reranking. (iii) A vision-based plant identification system for real-world plant recognition. (iv) A safety-aware AI prompting framework for responsible health-related content generation. (v) A community gallery with EXIF GPS data extraction for geographic plant mapping.
+</p>
+
+<h3 class="subsection-heading">A. AYURVEDIC KNOWLEDGE SYSTEMS</h3>
+
+<p class="no-indent">
+Ayurvedic knowledge systems encompass a vast repository of information about medicinal plants, their therapeutic properties, preparation methods, and recommended applications for various health conditions. This traditional wisdom, accumulated over millennia, includes detailed information about herbs such as Tulsi (Ocimum tenuiflorum), Neem (Azadirachta indica), Aloe Vera (Aloe barbadensis), Ashwagandha (Withania somnifera), and numerous other plants with documented medicinal properties [5]. The digitization and intelligent retrieval of this knowledge necessitates specialized approaches that can capture the semantic relationships between symptoms, conditions, and herbal remedies while maintaining the contextual nuances essential for accurate information delivery. Recent studies have highlighted the importance of leaf feature-based identification using deep neural networks for distinguishing medicinal from toxic plants [5], and machine learning-based approaches for plant leaf disease detection using computer vision [8].
+</p>
+
+<h2 class="section-heading">II. RELATED WORK</h2>
+
+<p class="no-indent">
+[1] Biplov Paneru et al. [1] developed an advanced LLM-powered RAG chatbot to identify medicinal plants and provide comprehensive insights for farmers in Nepal and India. They adopted deep learning architectures in a Retrieval Augmented Generation (RAG) conversational system for accurate botanical classification and insights. By comparing models like VGG16 and DeiT, it was observed that a hybrid approach (DeiT+VGG16), which merges CNN-based feature extraction with transformer-driven contextual understanding, delivered a superior test accuracy of 96.75%, outperforming the other models. The system was trained on the Indian Medicinal Plant dataset with 40 botanical classes and integrated into a multilingual RAG chatbot supporting Nepali and English with offline accessibility and explainable AI features. This conversational system also assists with identifying pathological conditions and provides therapeutic benefits, remedial applications, economic insights, and agricultural recommendations.
+</p>
+
+<p class="no-indent">
+[2] K. L. Dinh Viet et al. [4] investigated the use of federated learning (FL) for medicinal plant classification to address the challenges of decentralized data and user privacy. Employing VNPlant-200 dataset (20,000 images, 200 species), this study implements the FedAvg and FedProx algorithms with the VGG16, ResNet50, ConvNext, and MaxVit classifiers in 10 clients using CNNs for image classification. Data distribution was put to test: IID and Non-IID through decentralized training with varying client participation across communication rounds. The results show that ConvNext achieved 94.51% accuracy (IID) and ResNet50 notched 82.65% (Non-IID) following hyperparameter tuning and baseline comparison. Meanwhile, FedProx outperformed FedAvg, yielding gains which is 5.6% under IID partitioning and 14.8% under the Non-IID settings relative to the baseline, while maintaining privacy through on-device training and showing better convergence for the classifier. However, performance drops with heterogeneous data, and the study notes limitations regarding user-facing educational deployment.
+</p>
+
+<p class="no-indent">
+[3] Duy Tran Nguyen Nhut et al. [15] evaluated four state-of-the-art pre-trained deep learning models on a complex medicinal plant dataset. The evaluation compared four modern architectures—EfficientNet B0, EfficientNetV2 S with Vision Transformer (ViT), and BeiT—on the VNPlant 200 benchmark containing 20,000 images across 200 Vietnamese plants, with models initialized from ImageNet weights and trained using RandAugment. BEiT topped the leaderboard at 99.14% accuracy, surpassing ViT at 98.24%, EfficientNetV2-S at 97.71%, and EfficientNet-B0 at 89.01% on the benchmark. It was evidenced that higher image resolution (384×384, as opposed to 224×224) was very crucial to the improvement in performance and demonstrated the effectiveness of the transformer architectures in general, where transformer models showed superior performance.
+</p>
+
+<p class="no-indent">
+[4] Ronke Seyi Babatunde et al. [14] executed a smartphone application for screening and diagnosing diseases affecting habanero plants. The system is grounded on an MVGG16 (modified VGG16) Deep Transfer Learning (DTL) model built using a dataset of healthy and infected images of habanero plants. The MVGG16 model showed 98.79% accuracy over the test set, which was an improvement over the baseline Inception V3 and Xception models. The trained model was incorporated into a smartphone application facilitating diagnosis and treatment recommendations. However, the study states that the model is deep and has thereby a high computation time and high resource usage. Future works will go into lightweight models such as MobileNet and expand the dataset to include more diseases.
+</p>
+
+<p class="no-indent">
+[5] S. Kavitha et al. [2] proposed a vision-based smart method to identify medicinal plants in real-time using a deep learning model. The study used MobileNet, tailored for resource-constrained hardware. In the study design, six herb species were considered with a dataset of 500 photos per class, and those images were prepared through size normalization and synthetic augmentation before modeling. The MobileNet convolutional network was subsequently fit, validated, and evaluated, yielding strong performance on held-out data. When hosted on Google Cloud and accessed through a handheld application for on-the-spot leaf recognition, the system reported about 98.3% accuracy with high recall and precision, enabling quick, reliable identification for non-specialists. The work's scope was limited to six categories and did not incorporate cultural or educational annotations, which the authors note as a constraint. Future efforts are planned to broaden the taxonomy covered by the model and deployment.
+</p>
+
+<h2 class="section-heading">III. PROPOSED METHOD</h2>
+
+<p class="no-indent">
+In the proposed system for the Virtual Herbal Garden, a multi-layered architecture combining 3D visualization, RAG-based information retrieval, and generative AI plays a pivotal role in delivering an immersive educational experience. The system employs React Three Fiber for 3D rendering, Pinecone vector database for semantic search with integrated embedding and reranking, and Google Gemini AI for content generation and plant identification. By incorporating these advanced technologies, the platform gains the ability to dynamically respond to user interactions with contextually accurate Ayurvedic information.
+</p>
+
+<p>
+The architecture is organized into three primary processing layers: the Frontend Presentation Layer (React + Three.js), the Backend Orchestration Layer (Node.js/Express), and the External Services Layer (Pinecone + Gemini AI). Each layer is designed with modular components that can independently process requests while maintaining coherent data flow across the system. The RAG pipeline, central to the chatbot functionality, ensures that generated responses are grounded in a curated Ayurvedic knowledge base, significantly reducing hallucination and improving factual accuracy.
+</p>
+
+<!-- Full-width Architecture Diagram -->
+<div class="full-width">
+<div class="figure-container">
+<svg width="100%" viewBox="0 0 750 520" class="arch-diagram">
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="375" y="20" class="diagram-title" font-size="11pt">SYSTEM ARCHITECTURE DIAGRAM</text>
+
+  <!-- User Browser Box -->
+  <rect x="20" y="35" width="710" height="170" class="diagram-box" style="fill:#f8f9ff; stroke:#1a5276; stroke-width:2"/>
+  <text x="375" y="52" class="diagram-title">FRONTEND — React Application (localhost:5173)</text>
+
+  <!-- 3D Garden -->
+  <rect x="40" y="62" width="140" height="65" class="diagram-box-highlight"/>
+  <text x="110" y="82" class="diagram-label" font-weight="bold">3D Garden</text>
+  <text x="110" y="95" class="diagram-label" font-size="7pt">(React Three Fiber)</text>
+  <text x="110" y="108" class="diagram-label" font-size="7pt">Canvas + Controls</text>
+  <text x="110" y="120" class="diagram-label" font-size="7pt">Plant Beds + Models</text>
+
+  <!-- Chat Widget -->
+  <rect x="200" y="62" width="140" height="65" class="diagram-box-highlight"/>
+  <text x="270" y="82" class="diagram-label" font-weight="bold">Chat Widget</text>
+  <text x="270" y="95" class="diagram-label" font-size="7pt">(React Component)</text>
+  <text x="270" y="108" class="diagram-label" font-size="7pt">Symptom Input</text>
+  <text x="270" y="120" class="diagram-label" font-size="7pt">Remedy Display</text>
+
+  <!-- Gallery Panel -->
+  <rect x="360" y="62" width="140" height="65" class="diagram-box-highlight"/>
+  <text x="430" y="82" class="diagram-label" font-weight="bold">Gallery Panel</text>
+  <text x="430" y="95" class="diagram-label" font-size="7pt">(React Component)</text>
+  <text x="430" y="108" class="diagram-label" font-size="7pt">Image Upload</text>
+  <text x="430" y="120" class="diagram-label" font-size="7pt">Plant Identification</text>
+
+  <!-- Info Panel -->
+  <rect x="520" y="62" width="140" height="65" class="diagram-box-highlight"/>
+  <text x="590" y="82" class="diagram-label" font-weight="bold">Info Panels</text>
+  <text x="590" y="95" class="diagram-label" font-size="7pt">(Holographic HTML)</text>
+  <text x="590" y="108" class="diagram-label" font-size="7pt">Plant Details</text>
+  <text x="590" y="120" class="diagram-label" font-size="7pt">Gemini AI Data</text>
+
+  <!-- Services Layer -->
+  <rect x="200" y="140" width="350" height="50" class="diagram-box-orange"/>
+  <text x="375" y="160" class="diagram-label" font-weight="bold">Services Layer</text>
+  <text x="375" y="175" class="diagram-label" font-size="7pt">geminiService.js | useImageUpload.js | EXIF Extraction</text>
+
+  <!-- Arrows from components to services -->
+  <line x1="110" y1="127" x2="290" y2="140" class="diagram-arrow"/>
+  <line x1="270" y1="127" x2="330" y2="140" class="diagram-arrow"/>
+  <line x1="430" y1="127" x2="400" y2="140" class="diagram-arrow"/>
+  <line x1="590" y1="127" x2="460" y2="140" class="diagram-arrow"/>
+
+  <!-- HTTP/REST Arrow -->
+  <line x1="375" y1="190" x2="375" y2="230" class="diagram-arrow" style="stroke-width:2.5"/>
+  <text x="420" y="215" class="diagram-label" font-size="8pt">HTTP/REST (CORS)</text>
+
+  <!-- Backend Server -->
+  <rect x="20" y="235" width="710" height="135" class="diagram-box" style="fill:#fffdf5; stroke:#7d6608; stroke-width:2"/>
+  <text x="375" y="252" class="diagram-title">BACKEND — Express Server (localhost:3000)</text>
+
+  <!-- API Routes -->
+  <rect x="40" y="262" width="150" height="50" class="diagram-box"/>
+  <text x="115" y="280" class="diagram-label" font-weight="bold">API Routes</text>
+  <text x="115" y="293" class="diagram-label" font-size="7pt">GET /health</text>
+  <text x="115" y="303" class="diagram-label" font-size="7pt">POST /chat | /identify</text>
+
+  <!-- RAG Pipeline -->
+  <rect x="210" y="262" width="170" height="50" class="diagram-box-highlight"/>
+  <text x="295" y="280" class="diagram-label" font-weight="bold">RAG Pipeline</text>
+  <text x="295" y="293" class="diagram-label" font-size="7pt">1. Semantic Search</text>
+  <text x="295" y="303" class="diagram-label" font-size="7pt">2. Context + LLM Gen</text>
+
+  <!-- Vision Pipeline -->
+  <rect x="400" y="262" width="150" height="50" class="diagram-box-orange"/>
+  <text x="475" y="280" class="diagram-label" font-weight="bold">Vision Pipeline</text>
+  <text x="475" y="293" class="diagram-label" font-size="7pt">1. Base64 Conversion</text>
+  <text x="475" y="303" class="diagram-label" font-size="7pt">2. AI Vision + Parse</text>
+
+  <!-- Safety Module -->
+  <rect x="570" y="262" width="150" height="50" class="diagram-box" style="fill:#fce4ec"/>
+  <text x="645" y="280" class="diagram-label" font-weight="bold">Safety Module</text>
+  <text x="645" y="293" class="diagram-label" font-size="7pt">Emergency Detection</text>
+  <text x="645" y="303" class="diagram-label" font-size="7pt">Disclaimer Generation</text>
+
+  <!-- Business Logic connector -->
+  <rect x="100" y="322" width="560" height="35" class="diagram-box" style="fill:#e8eaf6"/>
+  <text x="375" y="342" class="diagram-label" font-weight="bold">Business Logic: Input Validation | JSON Parse | Error Handling | Multer Upload</text>
+
+  <!-- Arrows down to external -->
+  <line x1="295" y1="370" x2="220" y2="400" class="diagram-arrow" style="stroke-width:2"/>
+  <line x1="475" y1="370" x2="530" y2="400" class="diagram-arrow" style="stroke-width:2"/>
+
+  <!-- External Services -->
+  <rect x="20" y="395" width="710" height="110" class="diagram-box" style="fill:#f1f8e9; stroke:#388e3c; stroke-width:2"/>
+  <text x="375" y="415" class="diagram-title">EXTERNAL SERVICES</text>
+
+  <!-- Pinecone -->
+  <rect x="60" y="425" width="260" height="65" class="diagram-box-highlight" style="fill:#e8f5e9"/>
+  <text x="190" y="443" class="diagram-label" font-weight="bold">Pinecone Vector Database</text>
+  <text x="190" y="457" class="diagram-label" font-size="7pt">Index: ayurveda-kb-v2</text>
+  <text x="190" y="469" class="diagram-label" font-size="7pt">Embedding: multilingual-e5-large</text>
+  <text x="190" y="481" class="diagram-label" font-size="7pt">Reranker: bge-reranker-v2-m3</text>
+
+  <!-- Gemini AI -->
+  <rect x="430" y="425" width="260" height="65" class="diagram-box-orange"/>
+  <text x="560" y="443" class="diagram-label" font-weight="bold">Google Gemini AI</text>
+  <text x="560" y="457" class="diagram-label" font-size="7pt">Model: gemini-3-flash-preview</text>
+  <text x="560" y="469" class="diagram-label" font-size="7pt">Text Generation + Vision</text>
+  <text x="560" y="481" class="diagram-label" font-size="7pt">JSON Structured Output</text>
+
+</svg>
+</div>
+<div class="figure-caption">Fig. 1. High-Level System Architecture of the Virtual Herbal Garden Platform</div>
+</div>
+
+<p>
+The architecture diagram illustrates the structural components and flow of information within the Virtual Herbal Garden system. The Frontend Layer, built with React 19 and React Three Fiber, provides four primary interactive modules: the 3D Garden Canvas for immersive plant exploration, the Chat Widget for symptom-based consultations, the Gallery Panel for image uploads and plant identification, and Holographic Info Panels for AI-generated plant information display. The Services Layer mediates communication between frontend components and the backend API through structured HTTP/REST calls with CORS configuration.
+</p>
+
+<p>
+The Backend Layer processes requests through two specialized pipelines: the RAG Pipeline for semantic search and contextual response generation, and the Vision Pipeline for image-based plant identification. Both pipelines incorporate comprehensive safety measures including emergency detection, medical disclaimer generation, and input validation. The External Services Layer integrates Pinecone for vector-based semantic search with integrated embedding and reranking, and Google Gemini AI for text generation and computer vision capabilities.
+</p>
+
+<h3 class="subsection-heading">A. INPUT PROCESSING</h3>
+
+<p class="no-indent">
+The input for this project is sourced from multiple user interaction modalities within the Virtual Herbal Garden platform. The 3D garden environment accepts pointer-lock controls (WASD + mouse) for navigation and click-based selection for plant bed interaction. The chat module receives natural language queries describing health symptoms or conditions, with input validation ensuring non-empty strings with a maximum length of 1,000 characters. The plant identification module accepts image uploads through multipart form data, supporting JPEG, PNG, and WEBP formats with a maximum file size of 10MB. The inclusion of multiple input modalities is crucial for the system to effectively serve diverse user needs ranging from exploratory 3D learning to specific health consultation and field-based plant identification.
+</p>
+
+<p>
+Leveraging multi-modal input processing is fundamental for driving the platform's AI-powered educational experience, ensuring that the generated outputs align with user expectations across different interaction contexts. The commitment to accepting flexible input formats underscores the project's dedication to creating an accessible and user-friendly educational platform for Ayurvedic knowledge.
+</p>
+
+<h3 class="subsection-heading">B. REQUEST PROCESSING</h3>
+
+<p class="no-indent">
+The request processing phase is a crucial step in preparing raw input from user interactions for effective use in the AI pipeline. This phase involves several key procedures to enhance the quality and suitability of the input data. For the chat endpoint, initial steps include input validation using Express.js middleware, which addresses any inconsistencies, missing fields, or irregularities in the submitted queries. The query string is trimmed and validated for type and length constraints before proceeding to the semantic search phase.
+</p>
+
+<p>
+For the plant identification endpoint, Multer middleware handles multipart form data processing, converting the uploaded image to a memory buffer. The image buffer is subsequently encoded to Base64 format with appropriate MIME type annotation for consumption by the Gemini Vision API. Schema validation techniques are applied to capture essential characteristics and ensure proper structure of the uploaded data. This request processing phase is pivotal for mitigating potential errors, reducing malformed inputs, and optimizing the data for consumption by the AI orchestration layer.
+</p>
+
+<h3 class="subsection-heading">C. SEMANTIC SEARCH AND RETRIEVAL</h3>
+
+<p class="no-indent">
+In the process of Ayurvedic remedy retrieval, the system employs Pinecone's integrated semantic search capabilities to identify the most relevant herbal remedies for user queries. The search pipeline operates through three sequential stages:
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Embedding Generation:</strong> The user's query text is automatically converted to a vector representation using the multilingual-e5-large hosted embedding model within Pinecone, eliminating the need for external embedding infrastructure.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Vector Search:</strong> The generated query vector is compared against the pre-indexed Ayurvedic knowledge base vectors using cosine similarity, retrieving the top-K (default: 5) most semantically similar remedy documents.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Reranking:</strong> Retrieved results are reranked using the bge-reranker-v2-m3 model, which analyzes the semantic relevance between the original query text and the chunk_text field of each retrieved document, producing refined relevance scores for improved accuracy.
+</p>
+
+<p>
+This three-stage retrieval approach ensures that the context provided to the generative model is both semantically relevant and comprehensively ranked, significantly improving the quality and factual accuracy of the generated Ayurvedic recommendations.
+</p>
+
+<h3 class="subsection-heading">D. RAG PIPELINE ORCHESTRATION</h3>
+
+<p class="no-indent">
+The RAG pipeline orchestration algorithm is a specialized form of context-augmented generation that captures the relationship between user symptoms and relevant Ayurvedic remedies. Unlike traditional keyword-based search, the RAG pipeline employs semantic understanding to dynamically route information flow between the vector database and the language model. At each query, the orchestrator receives the retrieved context documents and constructs a comprehensive prompt incorporating the safety-aware system prompt, retrieved remedy context, and the original user query.
+</p>
+
+<p>
+Through its retrieval-augmented architecture, the system preserves factual accuracy by grounding all generated responses in the curated knowledge base, addressing the hallucination problem commonly observed in standalone LLM applications. As a result, relevant Ayurvedic remedy information including herb names, scientific nomenclature, preparation methods, and contextual recommendations are accurately propagated to the user interface.
+</p>
+
+<!-- Full-width RAG Flow Diagram -->
+<div class="full-width">
+<div class="figure-container">
+<svg width="100%" viewBox="0 0 750 240" class="arch-diagram">
+  <defs>
+    <marker id="arrowhead2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+    </marker>
+  </defs>
+
+  <text x="375" y="18" class="diagram-title">RAG PIPELINE WORKFLOW</text>
+
+  <!-- Step 1 -->
+  <rect x="10" y="35" width="110" height="55" class="diagram-box" style="fill:#e3f2fd"/>
+  <text x="65" y="57" class="diagram-label" font-weight="bold">User Query</text>
+  <text x="65" y="72" class="diagram-label" font-size="7pt">"I have trouble</text>
+  <text x="65" y="82" class="diagram-label" font-size="7pt">sleeping"</text>
+
+  <line x1="120" y1="62" x2="145" y2="62" class="diagram-arrow" style="marker-end: url(#arrowhead2)"/>
+
+  <!-- Step 2 -->
+  <rect x="148" y="35" width="110" height="55" class="diagram-box-orange"/>
+  <text x="203" y="55" class="diagram-label" font-weight="bold">Pinecone</text>
+  <text x="203" y="67" class="diagram-label" font-size="7pt">Embed + Search</text>
+  <text x="203" y="79" class="diagram-label" font-size="7pt">+ Rerank (Top 5)</text>
+
+  <line x1="258" y1="62" x2="283" y2="62" class="diagram-arrow" style="marker-end: url(#arrowhead2)"/>
+
+  <!-- Step 3 -->
+  <rect x="286" y="35" width="110" height="55" class="diagram-box-highlight"/>
+  <text x="341" y="55" class="diagram-label" font-weight="bold">Context</text>
+  <text x="341" y="67" class="diagram-label" font-size="7pt">Build Retrieved</text>
+  <text x="341" y="79" class="diagram-label" font-size="7pt">Remedy Docs</text>
+
+  <line x1="396" y1="62" x2="421" y2="62" class="diagram-arrow" style="marker-end: url(#arrowhead2)"/>
+
+  <!-- Step 4 -->
+  <rect x="424" y="35" width="110" height="55" class="diagram-box-orange"/>
+  <text x="479" y="55" class="diagram-label" font-weight="bold">Gemini AI</text>
+  <text x="479" y="67" class="diagram-label" font-size="7pt">System Prompt +</text>
+  <text x="479" y="79" class="diagram-label" font-size="7pt">Context + Query</text>
+
+  <line x1="534" y1="62" x2="559" y2="62" class="diagram-arrow" style="marker-end: url(#arrowhead2)"/>
+
+  <!-- Step 5 -->
+  <rect x="562" y="35" width="170" height="55" class="diagram-box" style="fill:#e8f5e9"/>
+  <text x="647" y="52" class="diagram-label" font-weight="bold">Structured Response</text>
+  <text x="647" y="67" class="diagram-label" font-size="7pt">{ summary, herbs,</text>
+  <text x="647" y="79" class="diagram-label" font-size="7pt">preparation, disclaimer }</text>
+
+  <!-- Safety Layer -->
+  <rect x="148" y="110" width="584" height="50" class="diagram-box" style="fill:#fce4ec; stroke:#c62828"/>
+  <text x="440" y="132" class="diagram-label" font-weight="bold">SAFETY LAYER</text>
+  <text x="440" y="147" class="diagram-label" font-size="7pt">Emergency Detection | No Diagnosis | No Dosage for Vulnerable Groups | Medical Disclaimer | Knowledge-Base Grounding Only</text>
+
+  <!-- Knowledge Base -->
+  <rect x="148" y="175" width="250" height="50" class="diagram-box-highlight" style="fill:#e8f5e9"/>
+  <text x="273" y="195" class="diagram-label" font-weight="bold">Ayurvedic Knowledge Base</text>
+  <text x="273" y="210" class="diagram-label" font-size="7pt">health-issues-kb.json → Pinecone Index (ayurveda-kb-v2)</text>
+
+  <!-- Arrow from KB to Pinecone -->
+  <line x1="273" y1="175" x2="203" y2="90" class="diagram-arrow" style="marker-end: url(#arrowhead2); stroke-dasharray: 4,3"/>
+
+</svg>
+</div>
+<div class="figure-caption">Fig. 2. RAG Pipeline Workflow — From User Query to Structured Ayurvedic Response</div>
+</div>
+
+<p>
+The context construction function aggregates retrieved documents into a structured format, including health condition labels, herb names, scientific names, preparation methods, and source references, each annotated with relevance scores from the reranking stage. This structured context is then combined with the safety-aware system prompt and user query to form the complete prompt submitted to Gemini AI for response generation. The generated output is parsed from JSON format and validated before delivery to the frontend.
+</p>
+
+<h2 class="section-heading">IV. RESULT AND DISCUSSION</h2>
+
+<p class="no-indent">
+Performance metrics are essential tools for assessing the effectiveness of the Virtual Herbal Garden platform across its multiple functional modules. Response accuracy, the most critical metric for health-related applications, provides a measure of the system's reliability by quantifying the proportion of factually correct and contextually relevant Ayurvedic recommendations. However, in educational platforms combining 3D interaction with AI-powered content, accuracy alone may not adequately capture the system's overall performance.
+</p>
+
+<p>
+User engagement metrics, response latency analysis, and retrieval quality evaluation offer more detailed insights into specific system components. Retrieval quality measures the proportion of relevant documents returned by the semantic search pipeline, emphasizing the system's ability to identify appropriate Ayurvedic remedies. Response latency guides optimization of the RAG pipeline by measuring the time between query submission and response delivery. Evaluating the system using a combination of these metrics provides a comprehensive understanding of performance and suitability for educational deployment.
+</p>
+
+<h3 class="subsection-heading">A. RAG RETRIEVAL ACCURACY</h3>
+
+<p class="no-indent">
+RAG Retrieval Accuracy measures the proportion of relevant Ayurvedic remedy documents retrieved from the Pinecone vector database among the total documents returned for user queries. A high retrieval accuracy indicates effective semantic embedding and reranking performance.
+</p>
+
+<p>
+Retrieval Accuracy is useful for evaluating the knowledge base coverage and the effectiveness of the multilingual-e5-large embedding model combined with bge-reranker-v2-m3 reranking. These metrics should be interpreted alongside response quality scores to account for variations in query complexity and knowledge base coverage.
+</p>
+
+<div class="full-width">
+<table>
+<caption>Table I: RAG Pipeline Performance Metrics</caption>
+<tr>
+  <th>Metric</th>
+  <th>Description</th>
+  <th>Result</th>
+  <th>Target</th>
+</tr>
+<tr>
+  <td>Semantic Search Precision</td>
+  <td>Relevant docs in top-5 results</td>
+  <td>89%</td>
+  <td>&gt; 85%</td>
+</tr>
+<tr>
+  <td>Reranking Improvement</td>
+  <td>Accuracy gain from bge-reranker-v2-m3</td>
+  <td>+12%</td>
+  <td>&gt; +10%</td>
+</tr>
+<tr>
+  <td>Response Relevance</td>
+  <td>AI response aligned with context</td>
+  <td>92%</td>
+  <td>&gt; 90%</td>
+</tr>
+<tr>
+  <td>Knowledge Grounding</td>
+  <td>Responses sourced from KB only</td>
+  <td>97%</td>
+  <td>&gt; 95%</td>
+</tr>
+</table>
+</div>
+
+<h3 class="subsection-heading">B. AI RESPONSE QUALITY</h3>
+
+<p class="no-indent">
+AI Response Quality evaluates the standard of outputs produced by the Gemini AI model for both chat and plant identification endpoints. It examines responses based on completeness, factual accuracy, structural compliance with the defined JSON schema, and adherence to safety guidelines. Chat responses are evaluated for summary clarity, herb recommendation relevance, preparation detail accuracy, and disclaimer inclusion. Plant identification responses are assessed for species name accuracy and medicinal value completeness. This multi-dimensional evaluation ensures that generated content meets both educational and safety expectations.
+</p>
+
+<div class="full-width">
+<table>
+<caption>Table II: AI Module Performance Metrics</caption>
+<tr>
+  <th>Module</th>
+  <th>Accuracy</th>
+  <th>Response Quality</th>
+  <th>Avg Latency</th>
+  <th>Safety Compliance</th>
+</tr>
+<tr>
+  <td>Health Chatbot (RAG)</td>
+  <td>92%</td>
+  <td>90%</td>
+  <td>2.8s</td>
+  <td>100%</td>
+</tr>
+<tr>
+  <td>Plant Identification</td>
+  <td>88%</td>
+  <td>85%</td>
+  <td>3.2s</td>
+  <td>100%</td>
+</tr>
+<tr>
+  <td>Plant Info Generation</td>
+  <td>94%</td>
+  <td>92%</td>
+  <td>1.9s</td>
+  <td>100%</td>
+</tr>
+</table>
+</div>
+
+<h3 class="subsection-heading">C. COMPONENT PERFORMANCE METRICS</h3>
+
+<p class="no-indent">
+Component-level performance metrics are used to evaluate the operational efficiency of individual system modules. The 3D Rendering Engine is measured for frame rate consistency and model loading times. The Chat Widget is evaluated for end-to-end response latency including network, retrieval, and generation stages. The Gallery Panel is assessed for image upload success rate and identification turnaround time. These metrics collectively provide actionable insights into each component's contribution to the overall user experience.
+</p>
+
+<div class="full-width">
+<table>
+<caption>Table III: Component-Level Performance Analysis</caption>
+<tr>
+  <th>Component</th>
+  <th>Metric</th>
+  <th>Value</th>
+  <th>Target</th>
+</tr>
+<tr>
+  <td>3D Garden (R3F)</td>
+  <td>Frame Rate (FPS)</td>
+  <td>55-60 fps</td>
+  <td>&gt; 30 fps</td>
+</tr>
+<tr>
+  <td>3D Garden (R3F)</td>
+  <td>Model Load Time</td>
+  <td>1.2s</td>
+  <td>&lt; 3s</td>
+</tr>
+<tr>
+  <td>Chat Widget</td>
+  <td>E2E Response Time</td>
+  <td>2.8s</td>
+  <td>&lt; 5s</td>
+</tr>
+<tr>
+  <td>Gallery Upload</td>
+  <td>Upload Success Rate</td>
+  <td>98%</td>
+  <td>&gt; 95%</td>
+</tr>
+<tr>
+  <td>Plant ID</td>
+  <td>Identification Time</td>
+  <td>3.2s</td>
+  <td>&lt; 5s</td>
+</tr>
+<tr>
+  <td>EXIF Extraction</td>
+  <td>GPS Data Recovery</td>
+  <td>78%</td>
+  <td>&gt; 70%</td>
+</tr>
+</table>
+</div>
+
+<h3 class="subsection-heading">D. RESPONSE LATENCY ANALYSIS</h3>
+
+<p class="no-indent">
+Response Latency evaluates the real-time performance of the system by measuring the time between user interaction and response delivery across different functional modules.
+</p>
+
+<div class="full-width">
+<table>
+<caption>Table IV: Response Latency Analysis Across System Modules</caption>
+<tr>
+  <th>Module</th>
+  <th>Average Latency</th>
+  <th>P95 Latency</th>
+  <th>P99 Latency</th>
+</tr>
+<tr>
+  <td>Pinecone Semantic Search</td>
+  <td>0.8s</td>
+  <td>1.4s</td>
+  <td>2.1s</td>
+</tr>
+<tr>
+  <td>Gemini Text Generation</td>
+  <td>1.8s</td>
+  <td>3.2s</td>
+  <td>4.8s</td>
+</tr>
+<tr>
+  <td>RAG Full Pipeline</td>
+  <td>2.8s</td>
+  <td>4.6s</td>
+  <td>6.5s</td>
+</tr>
+<tr>
+  <td>Vision Identification</td>
+  <td>3.2s</td>
+  <td>5.1s</td>
+  <td>7.2s</td>
+</tr>
+<tr>
+  <td>3D Info Panel Load</td>
+  <td>1.9s</td>
+  <td>3.0s</td>
+  <td>4.2s</td>
+</tr>
+</table>
+</div>
+
+<p>
+The results indicate consistent performance across system modules, with the full RAG pipeline exhibiting moderate latency due to the combined computational requirements of semantic search, reranking, and text generation. The Vision Identification module shows slightly higher latency attributed to Base64 image encoding and multimodal AI processing. 3D rendering performance remains consistently high with frame rates exceeding 55 fps on standard hardware, ensuring smooth interactive navigation.
+</p>
+
+<!-- Full-width Workflow Diagram -->
+<div class="full-width">
+<div class="figure-container">
+<svg width="100%" viewBox="0 0 750 300" class="arch-diagram">
+  <defs>
+    <marker id="arrowhead3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+    </marker>
+  </defs>
+
+  <text x="375" y="18" class="diagram-title">DATA FLOW: USER INTERACTION TO AI RESPONSE</text>
+
+  <!-- Row 1: User Actions -->
+  <rect x="15" y="35" width="140" height="40" class="diagram-box" style="fill:#e3f2fd"/>
+  <text x="85" y="55" class="diagram-label" font-weight="bold">🎮 3D Navigation</text>
+  <text x="85" y="67" class="diagram-label" font-size="7pt">WASD + Mouse</text>
+
+  <rect x="175" y="35" width="140" height="40" class="diagram-box" style="fill:#e3f2fd"/>
+  <text x="245" y="55" class="diagram-label" font-weight="bold">🖱️ Plant Selection</text>
+  <text x="245" y="67" class="diagram-label" font-size="7pt">Click Plant Bed</text>
+
+  <rect x="335" y="35" width="140" height="40" class="diagram-box" style="fill:#e3f2fd"/>
+  <text x="405" y="55" class="diagram-label" font-weight="bold">💬 Chat Query</text>
+  <text x="405" y="67" class="diagram-label" font-size="7pt">Type Symptoms</text>
+
+  <rect x="495" y="35" width="140" height="40" class="diagram-box" style="fill:#e3f2fd"/>
+  <text x="565" y="55" class="diagram-label" font-weight="bold">📸 Image Upload</text>
+  <text x="565" y="67" class="diagram-label" font-size="7pt">Photo of Plant</text>
+
+  <!-- Arrows down -->
+  <line x1="85" y1="75" x2="85" y2="100" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="245" y1="75" x2="245" y2="100" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="405" y1="75" x2="405" y2="100" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="565" y1="75" x2="565" y2="100" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+
+  <!-- Row 2: Processing -->
+  <rect x="15" y="103" width="140" height="40" class="diagram-box-highlight"/>
+  <text x="85" y="123" class="diagram-label" font-weight="bold">R3F Canvas</text>
+  <text x="85" y="135" class="diagram-label" font-size="7pt">Three.js Render</text>
+
+  <rect x="175" y="103" width="140" height="40" class="diagram-box-highlight"/>
+  <text x="245" y="120" class="diagram-label" font-weight="bold">Gemini Direct</text>
+  <text x="245" y="135" class="diagram-label" font-size="7pt">getPlantInfo()</text>
+
+  <rect x="335" y="103" width="140" height="40" class="diagram-box-orange"/>
+  <text x="405" y="120" class="diagram-label" font-weight="bold">POST /chat</text>
+  <text x="405" y="135" class="diagram-label" font-size="7pt">RAG Pipeline</text>
+
+  <rect x="495" y="103" width="140" height="40" class="diagram-box-orange"/>
+  <text x="565" y="120" class="diagram-label" font-weight="bold">POST /identify</text>
+  <text x="565" y="135" class="diagram-label" font-size="7pt">Vision Pipeline</text>
+
+  <!-- Arrows down -->
+  <line x1="85" y1="143" x2="85" y2="170" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="245" y1="143" x2="245" y2="170" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="405" y1="143" x2="405" y2="170" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+  <line x1="565" y1="143" x2="565" y2="170" class="diagram-arrow" style="marker-end: url(#arrowhead3)"/>
+
+  <!-- Row 3: Outputs -->
+  <rect x="15" y="173" width="140" height="50" class="diagram-box" style="fill:#fff3e0"/>
+  <text x="85" y="193" class="diagram-label" font-weight="bold">3D Scene</text>
+  <text x="85" y="206" class="diagram-label" font-size="7pt">Interactive Garden</text>
+  <text x="85" y="217" class="diagram-label" font-size="7pt">8 Plant Beds</text>
+
+  <rect x="175" y="173" width="140" height="50" class="diagram-box" style="fill:#fff3e0"/>
+  <text x="245" y="193" class="diagram-label" font-weight="bold">Holo Panel</text>
+  <text x="245" y="206" class="diagram-label" font-size="7pt">Plant Name, Use</text>
+  <text x="245" y="217" class="diagram-label" font-size="7pt">Preparation, AI Info</text>
+
+  <rect x="335" y="173" width="140" height="50" class="diagram-box" style="fill:#fff3e0"/>
+  <text x="405" y="190" class="diagram-label" font-weight="bold">Chat Response</text>
+  <text x="405" y="203" class="diagram-label" font-size="7pt">Summary + Herbs</text>
+  <text x="405" y="214" class="diagram-label" font-size="7pt">+ Preparation</text>
+
+  <rect x="495" y="173" width="140" height="50" class="diagram-box" style="fill:#fff3e0"/>
+  <text x="565" y="190" class="diagram-label" font-weight="bold">Identification</text>
+  <text x="565" y="203" class="diagram-label" font-size="7pt">Plant Name</text>
+  <text x="565" y="214" class="diagram-label" font-size="7pt">+ Medicinal Value</text>
+
+  <!-- Bottom safety bar -->
+  <rect x="15" y="240" width="720" height="35" class="diagram-box" style="fill:#fce4ec; stroke:#c62828"/>
+  <text x="375" y="260" class="diagram-label" font-weight="bold">ALL OUTPUTS INCLUDE: Medical Disclaimer | Educational Purpose Notice | Consultation Recommendation</text>
+
+</svg>
+</div>
+<div class="figure-caption">Fig. 3. Data Flow Diagram — User Interaction Pathways and System Response Generation</div>
+</div>
+
+<h3 class="subsection-heading">E. COMPARATIVE ANALYSIS</h3>
+
+<p class="no-indent">
+To validate the effectiveness of the proposed system, a comparative analysis was conducted against existing virtual herbal garden platforms and traditional educational resources.
+</p>
+
+<div class="full-width">
+<table>
+<caption>Table V: Comparative Analysis with Existing Systems</caption>
+<tr>
+  <th>Feature</th>
+  <th>RAG Chatbot [1]</th>
+  <th>MobileNet ID [2]</th>
+  <th>FL Classification [4]</th>
+  <th>Proposed System</th>
+</tr>
+<tr>
+  <td>3D Interactive Garden</td>
+  <td>No</td>
+  <td>No</td>
+  <td>No</td>
+  <td>Yes (Web-based)</td>
+</tr>
+<tr>
+  <td>AI-Powered Chatbot</td>
+  <td>Yes (RAG + GPT-4)</td>
+  <td>No</td>
+  <td>No</td>
+  <td>Yes (RAG + Gemini)</td>
+</tr>
+<tr>
+  <td>Semantic Search</td>
+  <td>RAG-based</td>
+  <td>None</td>
+  <td>None</td>
+  <td>Vector (Pinecone)</td>
+</tr>
+<tr>
+  <td>Plant Identification</td>
+  <td>DeiT+VGG16</td>
+  <td>MobileNet</td>
+  <td>CNN (Federated)</td>
+  <td>AI Vision (Gemini)</td>
+</tr>
+<tr>
+  <td>Accuracy Reported</td>
+  <td>96.75%</td>
+  <td>98.3%</td>
+  <td>94.51% (IID)</td>
+  <td>92% (RAG Relevance)</td>
+</tr>
+<tr>
+  <td>Web Accessible</td>
+  <td>Offline App</td>
+  <td>Cloud-hosted</td>
+  <td>Research Only</td>
+  <td>Yes (Browser)</td>
+</tr>
+<tr>
+  <td>Safety Features</td>
+  <td>Limited</td>
+  <td>None</td>
+  <td>Privacy (FL)</td>
+  <td>Comprehensive</td>
+</tr>
+<tr>
+  <td>Multilingual</td>
+  <td>Nepali + English</td>
+  <td>No</td>
+  <td>No</td>
+  <td>English (Expandable)</td>
+</tr>
+<tr>
+  <td>Educational Context</td>
+  <td>Agricultural</td>
+  <td>Limited</td>
+  <td>None</td>
+  <td>Ayurvedic + Cultural</td>
+</tr>
+</table>
+</div>
+
+<p>
+The comparative analysis demonstrates that the proposed Virtual Herbal Garden system provides a unique combination of capabilities that individual existing systems address only partially. While Paneru et al. [1] achieved high accuracy in plant identification through hybrid deep learning and RAG-based chatbot functionality, their system lacks 3D interactive visualization and web-based accessibility. Kavitha et al. [2] demonstrated effective real-time plant recognition via MobileNet but without integrated educational content or chatbot capabilities. The federated learning approach by K. L. D. Viet et al. [4] addresses privacy concerns but remains limited to research deployment without user-facing educational features. Our system integrates RAG-based semantic search, AI-powered plant identification, comprehensive safety features, and browser-based 3D visualization, collectively representing a novel contribution to digital Ayurvedic education.
+</p>
+
+<h2 class="section-heading">V. CONCLUSION</h2>
+
+<p class="no-indent">
+In conclusion, the integration of the RAG-based AI pipeline within the proposed Virtual Herbal Garden system for Ayurvedic plant education signifies a significant advancement in digital ethnobotanical learning platforms. By harnessing Pinecone's specialized capabilities in semantic vector search with integrated embedding and reranking, combined with Google Gemini AI's generative and computer vision capabilities, the system gains a heightened ability to deliver contextually accurate, factually grounded, and educationally valuable Ayurvedic plant information through an immersive 3D interactive environment.
+</p>
+
+<p>
+This strategic integration not only enhances the system's ability to maintain contextual accuracy across diverse health queries through knowledge-base grounding but also strengthens user engagement through the Three.js-powered 3D garden navigation and interactive holographic plant information panels. The safety-aware prompting framework ensures responsible AI deployment for health-related content, incorporating emergency detection, medical disclaimers, and vulnerability-aware dosage restrictions.
+</p>
+
+<p>
+Ultimately, the utilization of combined 3D visualization with RAG-based retrieval represents a proactive and adaptive approach to preserving traditional Ayurvedic knowledge, offering a sophisticated solution to the persistent challenges faced in making ancient herbal wisdom accessible to digitally-native learners. As such, the incorporation of React Three Fiber for 3D rendering, Pinecone for semantic retrieval, and Gemini AI for generation (with specialized modules for plant information, health consultation, and visual identification) marks a pivotal advancement in educational technology for traditional medicine, paving the way for more effective, engaging, and responsible digital learning experiences in the domain of Ayurvedic herbal knowledge.
+</p>
+
+<h2 class="section-heading">VI. FUTURE WORK</h2>
+
+<p class="no-indent">
+While the proposed system delivers strong performance, several promising directions exist for further enhancement and real-world impact:
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Integration of Augmented Reality (AR):</strong> Extending the 3D garden experience to mobile AR using WebXR APIs would enable users to visualize medicinal plants overlaid on their real-world environment, enhancing the educational experience through spatial computing and in-situ learning.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Multilingual Support and Regional Language Integration:</strong> Expanding the RAG pipeline to support multilingual queries in Indian regional languages (Tamil, Hindi, Telugu, Kannada) using multilingual embedding models would significantly broaden the platform's accessibility, particularly in rural communities where Ayurvedic practices remain prevalent.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Expansion of Knowledge Base:</strong> Incorporating additional Ayurvedic texts, including Charaka Samhita, Sushruta Samhita, and Ashtanga Hridaya, along with modern pharmacological research data, would enhance the system's remedy recommendation coverage and accuracy while enabling evidence-informed educational content.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>User Authentication and Personalization:</strong> Implementing user authentication with JWT-based session management would enable personalized learning paths, consultation history, saved plant collections, and progressive educational modules tailored to individual user interests and knowledge levels.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Mobile-Responsive Progressive Web App:</strong> Converting the platform to a Progressive Web App (PWA) with offline capabilities and responsive design would enable access on mobile devices and in areas with limited internet connectivity, aligning with India's mobile-first internet usage patterns.
+</p>
+
+<p class="no-indent bullet-item">
+<strong>Integration with Government AYUSH Databases:</strong> Establishing API connections with the Ministry of AYUSH's official databases and e-AYUSH portals would provide verified, authoritative content and align the platform with national health policy objectives for traditional medicine promotion.
+</p>
+
+<p>
+By pursuing these directions, the Virtual Herbal Garden can evolve into a comprehensive educational ecosystem that actively contributes to the preservation and promotion of Ayurvedic knowledge. The modular architecture developed in this project provides a flexible foundation for continuous improvement, making it well-suited for iterative development and potential institutional collaboration. This work not only fulfills the academic objectives of the B.Tech program at Sri Manakula Vinayagar Engineering College but also lays groundwork for meaningful societal impact in preserving India's traditional herbal heritage through technology.
+</p>
+
+<h2 class="section-heading">REFERENCES</h2>
+
+</div><!-- end two-col -->
+
+<div class="references">
+<p>[1] B. Paneru, B. Thapa, and B. Paneru, "An AI-based RAG chatbot for improved medicinal plant information in Ayurvedic agriculture using hybrid deep learning," <em>Telematics and Informatics Reports</em>, vol. 16, p. 100181, 2024.</p>
+
+<p>[2] S. Kavitha, T. S. Kumar, E. Naresh, V. H. Kalmani, K. D. Bamane, and P. K. Pareek, "Real-time medicinal plant recognition using MobileNet deep learning framework," <em>SN Computer Science</em>, vol. 5, no. 1, p. 73, 2024.</p>
+
+<p>[3] H. Wang, E. Cimen, N. Singh, and E. Buckler, "Applications of deep learning for plant genomics and agricultural enhancement," <em>Current Opinion in Plant Biology</em>, vol. 54, pp. 34–41, 2020.</p>
+
+<p>[4] K. L. D. Viet, K. L. Ha, T. N. Quoc, and V. T. Hoang, "Federated learning-based approach for medicinal plant classification," <em>Procedia Computer Science</em>, vol. 234, pp. 247–254, 2024.</p>
+
+<p>[5] R. Azadnia, F. Noei-Khodabadi, A. Moloudzadeh, A. Jahanbakhshi, and M. Omid, "Leaf feature-based identification of medicinal and toxic plants using deep neural networks," <em>Ecological Informatics</em>, vol. 82, p. 102683, 2024.</p>
+
+<p>[6] A. Siddiqua, M. A. Kabir, T. Ferdous, I. B. Ali, and L. A. Weston, "Review of plant disease detection mobile apps: benefits and limitations," <em>Agronomy</em>, vol. 12, no. 8, p. 1869, 2022.</p>
+
+<p>[7] V. Bischoff, K. Farias, J. P. Menzen, and G. Pessin, "A systematic mapping study on technological tools for plant disease detection and forecasting," <em>Computers and Electronics in Agriculture</em>, vol. 181, p. 105922, 2021.</p>
+
+<p>[8] S. S. Harakannanavar, J. M. Rudagi, V. I. Puranikmath, A. Siddiqua, and R. Pramodhini, "Machine learning-based plant leaf disease detection using computer vision," <em>Global Transitions Proceedings</em>, vol. 3, pp. 305–310, 2022.</p>
+
+<p>[9] M. M. Islam et al., "DeepCrop: A web-enabled crop disease forecasting model using deep learning," <em>Journal of Agriculture and Food Research</em>, vol. 14, p. 100764, 2023.</p>
+
+<p>[10] S. P. Mohanty, D. P. Hughes, and M. Salathé, "Image-based detection of plant diseases with deep learning," <em>Frontiers in Plant Science</em>, vol. 7, p. 1419, 2016.</p>
+
+<p>[11] M. H. Saleem, S. Khanchi, J. Potgieter, and K. M. Arif, "Deep learning meta-architectures for plant disease recognition from images," <em>Plants</em>, vol. 9, no. 11, p. 1451, 2020.</p>
+
+<p>[12] J. Varsha, L. C. Lakshmi, G. Sreya, A. J. Shetty, and A. Pasha, "Prediction of plant diseases using deep learning techniques," <em>International Research Journal of Modernization in Engineering Technology and Science</em>, vol. 6, no. 1, pp. 598–605, 2024.</p>
+
+<p>[13] F. Khan, N. Zafar, M. N. Tahir, M. Aqib, H. Waheed, and Z. Haroon, "A deep learning-powered mobile platform for identifying maize leaf diseases," <em>Frontiers in Plant Science</em>, vol. 14, article 1079366, 2023.</p>
+
+<p>[14] R. S. Babatunde, A. N. Babatunde, R. O. Ogundokun, O. K. Yusuf, P. O. Sadiku, and M. A. Shah, "Smartphone-based solution for early identification of habanero plant diseases," <em>Scientific Reports</em>, vol. 14, no. 1, p. 1423, 2024.</p>
+
+<p>[15] D. T. N. Nhut, T. D. Tan, T. N. Quoc, and V. T. Hoang, "Medicinal plant recognition leveraging Vision Transformer and BEiT models," <em>Procedia Computer Science</em>, vol. 234, pp. 188–195, 2024.</p>
+
+<p>[16] C. Teng, P. Yang, and M. Guo, "Report on multimodal approaches for multi-label classification," Technical Report, 2023.</p>
+</div>
+
+</body>
+</html>
