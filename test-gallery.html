@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test GPS Extraction</title>
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2d5016;
+        }
+        #fileInput {
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #4CAF50;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #preview {
+            max-width: 100%;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 5px;
+        }
+        .gps-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d5016;
+        }
+        .coords {
+            font-family: monospace;
+            color: #1976d2;
+            margin: 10px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .ai-result {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 GPS Extraction & Plant Identification Test</h1>
+        <p>This demonstrates the GPS extraction feature integrated with plant identification using Gemini AI.</p>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div id="results"></div>
+        
+        <button id="identifyBtn" style="display:none;" disabled>🔍 Identify Plant</button>
+        
+        <div id="aiResults"></div>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        let gpsData = { latitude: null, longitude: null };
+        const BACKEND = 'http://localhost:3000';
+        
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <img id="preview" src="${e.target.result}" alt="Preview">
+                    <div class="result">
+                        <div style="font-size: 16px; margin-bottom: 10px;">📸 File: ${file.name}</div>
+                        <div id="gpsInfo">Extracting GPS data...</div>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+            
+            // Extract GPS
+            try {
+                const gps = await exifr.gps(file);
+                if (gps && gps.latitude != null && gps.longitude != null) {
+                    gpsData = { latitude: gps.latitude, longitude: gps.longitude };
+                    document.getElementById('gpsInfo').innerHTML = `
+                        <div class="gps-info">✅ GPS Data Extracted!</div>
+                        <div class="coords">📍 Latitude: ${gps.latitude.toFixed(6)}</div>
+                        <div class="coords">📍 Longitude: ${gps.longitude.toFixed(6)}</div>
+                        <div style="margin-top: 10px; font-size: 14px;">
+                            <a href="https://www.google.com/maps?q=${gps.latitude},${gps.longitude}" target="_blank">📍 View on Google Maps</a>
+                        </div>
+                    `;
+                    document.getElementById('identifyBtn').style.display = 'block';
+                    document.getElementById('identifyBtn').disabled = false;
+                } else {
+                    gpsData = { latitude: null, longitude: null };
+                    document.getElementById('gpsInfo').innerHTML = `
+                        <div style="color: #f57c00;">⚠️ No GPS data found in this image</div>
+                        <div style="font-size: 14px; margin-top: 10px;">
+                            The image can still be identified, but location won't be stored.
+                        </div>
+                    `;
+                    document.getElementById('identifyBtn').style.display = 'block';
+                    document.getElementById('identifyBtn').disabled = false;
+                }
+            } catch (err) {
+                console.error('GPS extraction error:', err);
+                document.getElementById('gpsInfo').innerHTML = `
+                    <div style="color: #d32f2f;">❌ Error extracting GPS: ${err.message}</div>
+                `;
+            }
+        });
+        
+        document.getElementById('identifyBtn').addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            const btn = document.getElementById('identifyBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Identifying...';
+            
+            const aiResults = document.getElementById('aiResults');
+            aiResults.innerHTML = '<div class="result">🔄 Sending to AI for identification...</div>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                formData.append('plantId', 'test-upload');
+                
+                if (gpsData.latitude !== null) {
+                    formData.append('latitude', gpsData.latitude.toString());
+                }
+                if (gpsData.longitude !== null) {
+                    formData.append('longitude', gpsData.longitude.toString());
+                }
+                
+                const response = await fetch(`${BACKEND}/identify-plant`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                aiResults.innerHTML = `
+                    <div class="ai-result">
+                        <h3 style="margin-top: 0;">🌿 AI Identification Result</h3>
+                        <div style="font-size: 18px; font-weight: bold; color: #2d5016; margin: 15px 0;">
+                            ${data.identified_plant || 'Unknown'}
+                        </div>
+                        <div style="margin: 15px 0; line-height: 1.6;">
+                            <strong>Medical Value:</strong><br>
+                            ${data.medical_value || 'No information available'}
+                        </div>
+                        ${data.location_stored ? `
+                            <div style="background: #c8e6c9; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                                ✅ <strong>Location stored in database!</strong><br>
+                                This plant's location has been saved to Pinecone Vector DB.
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                btn.textContent = '✅ Identified';
+            } catch (err) {
+                console.error('Identification error:', err);
+                aiResults.innerHTML = `
+                    <div class="result" style="background: #ffebee; border-left-color: #f44336;">
+                        <strong>❌ Error:</strong> ${err.message}
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.textContent = '🔍 Identify Plant';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -72,3 +72,92 @@ export async function getPlantInfo(plantName) {
     }
   }
 }
+
+/**
+ * Extracts location information from geotagged images using Gemini Vision API.
+ * Can detect GPS overlay stamps, watermarks, and embedded location text.
+ */
+export async function extractLocationFromImage(imageFile) {
+  if (!API_KEY) {
+    return {
+      error: true,
+      message: 'Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.'
+    }
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(API_KEY)
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' })
+
+    // Convert file to base64
+    const base64Data = await fileToBase64(imageFile)
+    const mimeType = imageFile.type || 'image/jpeg'
+
+    const prompt = `Analyze this image and extract ANY location information visible in it.
+Look for:
+- GPS overlays or watermarks (like "GPS Map Camera" stamps)
+- Address text
+- City, state, country names
+- Coordinate numbers (latitude/longitude)
+- Date/time stamps
+- Map thumbnails
+
+Return ONLY valid JSON in this exact format:
+{
+  "address": "Full address if visible, otherwise null",
+  "city": "City name if visible, otherwise null",
+  "state": "State/Province if visible, otherwise null",
+  "country": "Country if visible, otherwise null",
+  "coordinates": "Coordinates as text (e.g., 'Lat 28.997778° Long 77.761522°'), otherwise null",
+  "timestamp": "Date/time if visible in image, otherwise null",
+  "has_geotag_overlay": true or false
+}
+
+Extract text EXACTLY as it appears. If no location information is visible, set all fields to null except has_geotag_overlay which should be false.`
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType,
+          data: base64Data,
+        },
+      },
+    ])
+
+    const response = await result.response
+    const text = response.text()
+
+    const cleanText = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+    const parsed = JSON.parse(cleanText)
+
+    return parsed
+  } catch (err) {
+    const isNetworkError = err.message?.includes('fetch') || err.message?.includes('network')
+    const isParseError = err instanceof SyntaxError
+
+    return {
+      error: true,
+      message: isNetworkError
+        ? 'Network error. Please check your internet connection.'
+        : isParseError
+          ? 'Failed to parse AI response. Please try again.'
+          : err.message || 'An unexpected error occurred. Please try again.'
+    }
+  }
+}
+
+/**
+ * Helper function to convert a File to base64 string
+ */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1]
+      resolve(base64)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}

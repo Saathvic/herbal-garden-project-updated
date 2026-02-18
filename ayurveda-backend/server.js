@@ -180,24 +180,49 @@ app.post("/chat", async (req, res) => {
 
 // ── POST /identify-plant ───────────────────────────────────────────
 app.post("/identify-plant", upload.single("image"), async (req, res) => {
+  console.log("📸 Received plant identification request");
   try {
     if (!req.file) {
+      console.log("❌ No image file in request");
       return res.status(400).json({ error: "No image file provided" });
     }
+
+    // Extract GPS coordinates from form data (EXIF)
+    const latitude = req.body.latitude ? parseFloat(req.body.latitude) : null;
+    const longitude = req.body.longitude ? parseFloat(req.body.longitude) : null;
+    const plantId = req.body.plantId || "unknown";
+
+    console.log(`🔍 Identifying plant for ${plantId}, GPS: ${latitude}, ${longitude}`);
 
     // Convert buffer to base64
     const imageBase64 = req.file.buffer.toString("base64");
     const mimeType = req.file.mimetype || "image/jpeg";
+    console.log(`📄 Image size: ${(req.file.buffer.length / 1024).toFixed(2)} KB`);
 
-    // Create vision prompt
-    const prompt = `Identify this plant and provide its medicinal/herbal value. 
+    // Enhanced vision prompt to extract both plant info and location from image
+    const prompt = `Analyze this image carefully and identify:
+1. The plant species and its medicinal/herbal value
+2. Any location information visible in the image (GPS coordinates, address, city, country, timestamp overlays, watermarks, or geotag stamps)
+
 Return ONLY a JSON object with this exact format:
 {
   "identified_plant": "Common name (Scientific name)",
-  "medical_value": "Brief description of its medicinal properties and traditional uses"
-}`;
+  "medical_value": "Brief description of its medicinal properties and traditional uses",
+  "location_from_image": {
+    "address": "Full address if visible in image, otherwise null",
+    "city": "City name if visible, otherwise null",
+    "state": "State/Province if visible, otherwise null",
+    "country": "Country if visible, otherwise null",
+    "coordinates": "Coordinates as shown in image (e.g., 'Lat 28.997778° Long 77.761522°'), otherwise null",
+    "timestamp": "Date/time if visible in image, otherwise null",
+    "has_geotag_overlay": true or false
+  }
+}
+
+Important: Extract text EXACTLY as it appears in any GPS overlay, watermark, or stamp. If no location information is visible, set all location fields to null.`;
 
     // Send to Gemini Vision
+    console.log("🤖 Sending image to Gemini Vision API...");
     const result = await visionModel.generateContent([
       prompt,
       {
@@ -209,6 +234,7 @@ Return ONLY a JSON object with this exact format:
     ]);
 
     const responseText = result.response.text();
+    console.log("✅ Received response from Gemini");
 
     // Parse JSON response
     const cleaned = responseText
@@ -218,18 +244,108 @@ Return ONLY a JSON object with this exact format:
 
     const parsed = JSON.parse(cleaned);
 
+    // Prepare location data - prioritize EXIF GPS, fallback to extracted location
+    let finalLatitude = latitude;
+    let finalLongitude = longitude;
+    let locationSource = "exif";
+    
+    // If no EXIF GPS but we have location from image overlay, try to extract coordinates
+    if (latitude === null && parsed.location_from_image?.coordinates) {
+      locationSource = "image_overlay";
+      // Note: We keep coordinates as text since parsing would require more complex logic
+      // The coordinates text will be displayed to the user
+    }
+
+    // Store in Pinecone if we have GPS coordinates from EXIF
+    if (finalLatitude !== null && finalLongitude !== null && parsed.identified_plant) {
+      try {
+        const namespace = index.namespace(PINECONE_NAMESPACE);
+        const recordId = `plant-location-${Date.now()}`;
+        
+        await namespace.upsertRecords({
+          records: [{
+            id: recordId,
+            fields: {
+              plantId: plantId,
+              identified_plant: parsed.identified_plant,
+              medical_value: parsed.medical_value || "No medicinal information available",
+              latitude: finalLatitude,
+              longitude: finalLongitude,
+              address: parsed.location_from_image?.address || null,
+              city: parsed.location_from_image?.city || null,
+              state: parsed.location_from_image?.state || null,
+              country: parsed.location_from_image?.country || null,
+              timestamp: new Date().toISOString(),
+              type: "plant_location"
+            }
+          }]
+        });
+        
+        console.log(`✅ Stored plant location: ${parsed.identified_plant} at ${finalLatitude}, ${finalLongitude}`);
+      } catch (storeErr) {
+        console.error("⚠️  Failed to store location in Pinecone:", storeErr.message);
+        // Don't fail the request if storage fails
+      }
+    }
+
+    console.log("✅ Plant identified:", parsed.identified_plant);
     return res.json({
       identified_plant: parsed.identified_plant || "Unknown",
       medical_value: parsed.medical_value || "No medicinal information available",
+      location_stored: finalLatitude !== null && finalLongitude !== null,
+      location_from_image: parsed.location_from_image || null,
+      location_source: locationSource,
     });
   } catch (err) {
     console.error("❌ /identify-plant error:", err.message);
+    console.error("Full error:", err);
 
     if (err instanceof SyntaxError) {
       return res.status(502).json({ error: "Failed to parse AI response" });
     }
 
-    return res.status(500).json({ error: "Failed to identify plant" });
+    return res.status(500).json({ error: err.message || "Failed to identify plant" });
+  }
+});
+
+// ── GET /plant-locations/:plantId ──────────────────────────────────
+app.get("/plant-locations/:plantId", async (req, res) => {
+  try {
+    const { plantId } = req.params;
+    
+    const namespace = index.namespace(PINECONE_NAMESPACE);
+    
+    // Query for plant locations by plantId
+    const results = await namespace.queryRecords({
+      filter: {
+        plantId: { $eq: plantId },
+        type: { $eq: "plant_location" }
+      },
+      topK: 100,
+      includeFields: ["plantId", "identified_plant", "medical_value", "latitude", "longitude", "address", "city", "state", "country", "timestamp"]
+    });
+
+    const locations = (results.records || []).map(record => ({
+      id: record.id,
+      identified_plant: record.fields?.identified_plant,
+      medical_value: record.fields?.medical_value,
+      latitude: record.fields?.latitude,
+      longitude: record.fields?.longitude,
+      address: record.fields?.address,
+      city: record.fields?.city,
+      state: record.fields?.state,
+      country: record.fields?.country,
+      timestamp: record.fields?.timestamp
+    }));
+
+    return res.json({
+      plantId,
+      count: locations.length,
+      locations
+    });
+  } catch (err) {
+    console.error("❌ /plant-locations error:", err.message);
+    return res.status(500).json({ error: "Failed to retrieve plant locations" });
   }
 });
 
@@ -238,5 +354,6 @@ app.listen(PORT, () => {
   console.log(`\n🌿 Ayurveda backend running on http://localhost:${PORT}`);
   console.log(`   POST /chat          — symptom-based herb recommendation`);
   console.log(`   POST /identify-plant — AI plant identification from image`);
+  console.log(`   GET  /plant-locations/:plantId — retrieve stored plant locations`);
   console.log(`   GET  /health        — health check\n`);
 });

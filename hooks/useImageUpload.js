@@ -87,29 +87,57 @@ export default function useImageUpload() {
 
   /**
    * Send the image to the backend for AI plant identification.
-   * Expects POST /identify-plant with multipart/form-data { image }.
-   * Returns { identified_plant, medical_value } or throws.
+   * Expects POST /identify-plant with multipart/form-data { image, latitude, longitude, plantId }.
+   * Returns { identified_plant, medical_value, location_stored } or throws.
    */
   const [identifying, setIdentifying] = useState(false)
   const [identifyError, setIdentifyError] = useState(null)
 
-  const identifyPlant = useCallback(async (file) => {
+  const identifyPlant = useCallback(async (file, gpsData = {}, plantId = 'unknown') => {
     setIdentifying(true)
     setIdentifyError(null)
     try {
       const formData = new FormData()
       formData.append('image', file)
+      
+      // Add GPS coordinates if available
+      if (gpsData.latitude != null) {
+        formData.append('latitude', gpsData.latitude.toString())
+      }
+      if (gpsData.longitude != null) {
+        formData.append('longitude', gpsData.longitude.toString())
+      }
+      formData.append('plantId', plantId)
+
+      console.log('Sending plant identification request...')
+      
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
 
       const res = await fetch(`${BACKEND}/identify-plant`, {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       })
+      
+      clearTimeout(timeoutId)
+      
       if (!res.ok) {
-        throw new Error(`Server responded with ${res.status}`)
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || `Server responded with ${res.status}`)
       }
-      return await res.json()
+      
+      const result = await res.json()
+      console.log('Identification result:', result)
+      return result
     } catch (err) {
-      setIdentifyError(err.message || 'Identification failed')
+      console.error('Identification error:', err)
+      if (err.name === 'AbortError') {
+        setIdentifyError('Request timed out. The image may be too large or the server is busy.')
+      } else {
+        setIdentifyError(err.message || 'Identification failed')
+      }
       return null
     } finally {
       setIdentifying(false)

@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { PointerLockControls, Html, Sky, useGLTF } from '@react-three/drei'
+import { PointerLockControls, Html, Sky, useGLTF, useTexture } from '@react-three/drei'
 import { useRef, useEffect, useMemo, useState, useCallback, createContext, useContext, Suspense } from 'react'
 import * as THREE from 'three'
 import plantData from './plantData.json'
@@ -156,24 +156,44 @@ function GeminiPanel() {
 }
 
 function Fountain() {
+  // Load fountain water texture for the outer body
+  const fountainTexture = useTexture('./Textures/Full-frame-fountain-water-texture-patternpictures-5406-1500x997.jpg')
+  
+  // Configure texture for fountain body
+  useEffect(() => {
+    if (fountainTexture) {
+      fountainTexture.wrapS = fountainTexture.wrapT = THREE.RepeatWrapping
+      fountainTexture.repeat.set(3, 2) // Adjust repeat for best visual
+      fountainTexture.needsUpdate = true
+    }
+  }, [fountainTexture])
+  
   return (
     <group position={[0, 0, 0]}>
-      {/* Stone base */}
+      {/* Stone base with texture */}
       <mesh position={[0, 0.2, 0]} castShadow receiveShadow frustumCulled={false}>
         <cylinderGeometry args={[2, 2.2, 0.4, 32]} />
-        <meshStandardMaterial color="#8a8a82" roughness={0.85} />
+        <meshStandardMaterial 
+          map={fountainTexture} 
+          roughness={0.75} 
+          metalness={0.15}
+        />
       </mesh>
       
-      {/* Water pool */}
+      {/* Water pool - keep original appearance */}
       <mesh position={[0, 0.41, 0]} receiveShadow frustumCulled={false}>
         <cylinderGeometry args={[1.8, 1.8, 0.05, 32]} />
         <meshStandardMaterial color="#5a9ab8" roughness={0.15} metalness={0.2} transparent opacity={0.85} />
       </mesh>
       
-      {/* Center pillar */}
+      {/* Center pillar with texture */}
       <mesh position={[0, 0.6, 0]} castShadow frustumCulled={false}>
         <cylinderGeometry args={[0.3, 0.35, 0.8, 16]} />
-        <meshStandardMaterial color="#9a9a92" roughness={0.8} />
+        <meshStandardMaterial 
+          map={fountainTexture} 
+          roughness={0.75} 
+          metalness={0.15}
+        />
       </mesh>
     </group>
   )
@@ -325,6 +345,18 @@ function GardenBoundary() {
 }
 
 function PathwaySystem() {
+  // Load stone texture
+  const stoneTexture = useTexture('./Textures/natural-stone-paviment.jpg')
+  
+  // Configure texture for realistic tiling
+  useEffect(() => {
+    if (stoneTexture) {
+      stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping
+      stoneTexture.repeat.set(2, 2) // Repeat texture for realistic stone pattern
+      stoneTexture.needsUpdate = true
+    }
+  }, [stoneTexture])
+  
   const tiles = []
   const tileSize = 1
   const pathWidth = 3
@@ -338,7 +370,11 @@ function PathwaySystem() {
       tiles.push(
         <mesh key={`h-${i}-${j}`} position={[x, 0.02, z]} receiveShadow frustumCulled={false}>
           <boxGeometry args={[tileSize - 0.05, 0.06, tileSize - 0.05]} />
-          <meshStandardMaterial color="#a8a090" roughness={0.92} />
+          <meshStandardMaterial 
+            map={stoneTexture} 
+            roughness={0.85} 
+            metalness={0.1}
+          />
         </mesh>
       )
     }
@@ -356,7 +392,11 @@ function PathwaySystem() {
         tiles.push(
           <mesh key={`v-${i}-${j}`} position={[x, 0.02, z]} receiveShadow frustumCulled={false}>
             <boxGeometry args={[tileSize - 0.05, 0.06, tileSize - 0.05]} />
-            <meshStandardMaterial color="#a8a090" roughness={0.92} />
+            <meshStandardMaterial 
+              map={stoneTexture} 
+              roughness={0.85} 
+              metalness={0.1}
+            />
           </mesh>
         )
       }

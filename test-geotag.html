@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geo-Tag Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/exifr@latest/dist/lite.esm.js" type="module"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a7b 100%);
+      color: #fff;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      border-radius: 10px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      color: #00e5ff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .upload-area {
+      border: 2px dashed rgba(0, 229, 255, 0.5);
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .upload-area:hover {
+      background: rgba(0, 229, 255, 0.1);
+      border-color: #00e5ff;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 100, 120, 0.3);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      border-radius: 8px;
+      display: none;
+    }
+    .result.show {
+      display: block;
+    }
+    .gps-data {
+      font-size: 18px;
+      margin: 10px 0;
+      padding: 15px;
+      background: rgba(0, 150, 180, 0.2);
+      border-radius: 6px;
+      border-left: 4px solid #4ade80;
+    }
+    .label {
+      color: #88d8e8;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    .value {
+      color: #4ade80;
+      font-family: 'Consolas', monospace;
+      font-size: 16px;
+    }
+    button {
+      background: linear-gradient(135deg, #00e5ff 0%, #0099cc 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .image-preview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin: 20px 0;
+      display: none;
+    }
+    .image-preview.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌍 GPS Geo-Tag Extraction Test</h1>
+    <p style="text-align: center; color: #88d8e8;">Upload an image with GPS metadata to extract location data</p>
+    
+    <div class="upload-area" id="uploadArea">
+      <h3>📸 Click to Upload Image</h3>
+      <p>or drag and drop here</p>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;">
+    </div>
+
+    <img id="preview" class="image-preview" />
+
+    <div id="result" class="result">
+      <h2 style="color: #00e5ff;">✅ GPS Data Extracted Successfully!</h2>
+      <div id="gpsInfo"></div>
+      <button onclick="testUploadToBackend()">📍 Store Location in Database</button>
+      <div id="uploadStatus" style="margin-top: 15px; padding: 10px; display: none;"></div>
+    </div>
+
+    <div id="noGps" class="result" style="background: rgba(180, 50, 50, 0.3); border-color: rgba(255, 100, 100, 0.4);">
+      <h2 style="color: #ff6b6b;">❌ No GPS Data Found</h2>
+      <p>This image does not contain GPS location metadata in its EXIF data.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import exifr from 'https://cdn.jsdelivr.net/npm/exifr@latest/dist/lite.esm.js';
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const preview = document.getElementById('preview');
+    const result = document.getElementById('result');
+    const noGps = document.getElementById('noGps');
+    const gpsInfo = document.getElementById('gpsInfo');
+
+    let currentFile = null;
+    let currentGpsData = null;
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.background = 'rgba(0, 229, 255, 0.2)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.background = '';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.background = '';
+      if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    async function handleFile(file) {
+      currentFile = file;
+      result.classList.remove('show');
+      noGps.classList.remove('show');
+      
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.classList.add('show');
+      };
+      reader.readAsDataURL(file);
+
+      try {
+        // Extract GPS data
+        const gpsData = await exifr.gps(file);
+        
+        if (gpsData && gpsData.latitude != null && gpsData.longitude != null) {
+          currentGpsData = gpsData;
+          displayGpsData(gpsData);
+          result.classList.add('show');
+        } else {
+          noGps.classList.add('show');
+        }
+      } catch (error) {
+        console.error('Error extracting GPS data:', error);
+        noGps.classList.add('show');
+      }
+    }
+
+    function displayGpsData(gps) {
+      gpsInfo.innerHTML = `
+        <div class="gps-data">
+          <span class="label">📍 Latitude:</span>
+          <span class="value">${gps.latitude.toFixed(6)}°</span>
+        </div>
+        <div class="gps-data">
+          <span class="label">📍 Longitude:</span>
+          <span class="value">${gps.longitude.toFixed(6)}°</span>
+        </div>
+        <div class="gps-data" style="border-left-color: #00e5ff;">
+          <span class="label">🗺️ Google Maps:</span>
+          <a href="https://www.google.com/maps?q=${gps.latitude},${gps.longitude}" 
+             target="_blank" 
+             style="color: #4ade80; text-decoration: underline;">
+            View on Map →
+          </a>
+        </div>
+      `;
+    }
+
+    window.testUploadToBackend = async function() {
+      const statusDiv = document.getElementById('uploadStatus');
+      statusDiv.style.display = 'block';
+      statusDiv.innerHTML = '<p style="color: #88d8e8;">⏳ Uploading and storing location...</p>';
+
+      try {
+        const formData = new FormData();
+        formData.append('image', currentFile);
+        formData.append('latitude', currentGpsData.latitude.toString());
+        formData.append('longitude', currentGpsData.longitude.toString());
+        formData.append('plantId', 'test-cube');
+
+        const response = await fetch('http://localhost:3000/identify-plant', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusDiv.innerHTML = `
+            <div style="background: rgba(74, 222, 128, 0.2); padding: 15px; border-radius: 6px; border: 1px solid #4ade80;">
+              <h3 style="color: #4ade80; margin-top: 0;">✅ Success!</h3>
+              <p><strong>Plant Identified:</strong> ${data.identified_plant}</p>
+              <p><strong>Medical Value:</strong> ${data.medical_value}</p>
+              <p><strong>Location Stored:</strong> ${data.location_stored ? '✓ Yes' : '✗ No'}</p>
+            </div>
+          `;
+        } else {
+          statusDiv.innerHTML = `
+            <div style="background: rgba(255, 100, 100, 0.2); padding: 15px; border-radius: 6px; border: 1px solid #ff6b6b;">
+              <p style="color: #ff6b6b;">❌ Error: ${data.error || 'Upload failed'}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        statusDiv.innerHTML = `
+          <div style="background: rgba(255, 100, 100, 0.2); padding: 15px; border-radius: 6px; border: 1px solid #ff6b6b;">
+            <p style="color: #ff6b6b;">❌ Error: ${error.message}</p>
+            <p style="color: #88d8e8; font-size: 12px;">Make sure the backend server is running on port 3000</p>
+          </div>
+        `;
+      }
+    };
+  </script>
+</body>
+</html>

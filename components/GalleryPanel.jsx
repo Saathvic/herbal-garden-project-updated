@@ -1,6 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import plantData from '../plantData.json'
 import useImageUpload from '../hooks/useImageUpload'
+
+const BACKEND = 'http://localhost:3000'
 
 /**
  * GalleryPanel – futuristic hologram overlay that shows community-uploaded
@@ -20,8 +22,35 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
   const [images, setImages] = useState([])
   const [lightbox, setLightbox] = useState(null)  // index or null
   const [aiResult, setAiResult] = useState(null)
-  // Track the last uploaded File so user can click "Identify Plant" after upload
+  // Track the last uploaded File and its GPS data
   const [lastUploadedFile, setLastUploadedFile] = useState(null)
+  const [lastGpsData, setLastGpsData] = useState({ latitude: null, longitude: null })
+  
+  // Stored plant locations from database
+  const [storedLocations, setStoredLocations] = useState([])
+  const [loadingLocations, setLoadingLocations] = useState(false)
+
+  // Load stored plant locations when gallery opens
+  useEffect(() => {
+    if (isOpen && plantId) {
+      loadStoredLocations()
+    }
+  }, [isOpen, plantId])
+
+  const loadStoredLocations = async () => {
+    setLoadingLocations(true)
+    try {
+      const res = await fetch(`${BACKEND}/plant-locations/${plantId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setStoredLocations(data.locations || [])
+      }
+    } catch (err) {
+      console.error('Failed to load stored locations:', err)
+    } finally {
+      setLoadingLocations(false)
+    }
+  }
 
   if (!isOpen) return null
 
@@ -33,6 +62,7 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
     if (record) {
       setImages((prev) => [record, ...prev])
       setLastUploadedFile(file)
+      setLastGpsData({ latitude: record.latitude, longitude: record.longitude })
       setAiResult(null)
     }
     // Reset so the same file can be re-selected
@@ -41,8 +71,21 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
 
   const onIdentify = async () => {
     if (!lastUploadedFile) return
-    const res = await identifyPlant(lastUploadedFile)
-    if (res) setAiResult(res)
+    console.log('🔍 Starting plant identification...')
+    console.log('File:', lastUploadedFile.name, lastUploadedFile.type, lastUploadedFile.size)
+    console.log('GPS data:', lastGpsData)
+    console.log('Plant ID:', plantId)
+    
+    const res = await identifyPlant(lastUploadedFile, lastGpsData, plantId)
+    console.log('Identification result:', res)
+    
+    if (res) {
+      setAiResult(res)
+      // Reload stored locations to show the new entry
+      if (res.location_stored) {
+        loadStoredLocations()
+      }
+    }
   }
 
   const stopProp = (e) => e.stopPropagation()
@@ -120,7 +163,87 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
                 <span className="gp-ai-value">{aiResult.medical_value}</span>
               </div>
             )}
+            
+            {/* Location information extracted from image */}
+            {aiResult.location_from_image && aiResult.location_from_image.has_geotag_overlay && (
+              <div className="gp-location-section">
+                <div className="gp-location-header">📍 Location from Image</div>
+                {aiResult.location_from_image.address && (
+                  <div className="gp-location-row">
+                    <span className="gp-location-label">Address</span>
+                    <span className="gp-location-value">{aiResult.location_from_image.address}</span>
+                  </div>
+                )}
+                {(aiResult.location_from_image.city || aiResult.location_from_image.state || aiResult.location_from_image.country) && (
+                  <div className="gp-location-row">
+                    <span className="gp-location-label">Location</span>
+                    <span className="gp-location-value">
+                      {[aiResult.location_from_image.city, aiResult.location_from_image.state, aiResult.location_from_image.country]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </span>
+                  </div>
+                )}
+                {aiResult.location_from_image.coordinates && (
+                  <div className="gp-location-row">
+                    <span className="gp-location-label">Coordinates</span>
+                    <span className="gp-location-value">{aiResult.location_from_image.coordinates}</span>
+                  </div>
+                )}
+                {aiResult.location_from_image.timestamp && (
+                  <div className="gp-location-row">
+                    <span className="gp-location-label">Timestamp</span>
+                    <span className="gp-location-value">{aiResult.location_from_image.timestamp}</span>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {aiResult.location_stored && (
+              <div className="gp-ai-row">
+                <span className="gp-ai-label">Database</span>
+                <span className="gp-ai-value" style={{ color: '#4ade80' }}>✓ Location stored</span>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Stored plant locations from database */}
+        {storedLocations.length > 0 && (
+          <div className="gp-stored-section">
+            <div className="gp-stored-header">📍 Stored Plant Locations ({storedLocations.length})</div>
+            <div className="gp-stored-list">
+              {storedLocations.slice(0, 5).map((loc, i) => (
+                <div key={loc.id || i} className="gp-stored-item">
+                  <div className="gp-stored-plant">{loc.identified_plant}</div>
+                  {loc.latitude && loc.longitude && (
+                    <div className="gp-stored-coords">
+                      📍 {loc.latitude?.toFixed(5)}, {loc.longitude?.toFixed(5)}
+                    </div>
+                  )}
+                  {(loc.city || loc.state || loc.country) && (
+                    <div className="gp-stored-location">
+                      🌍 {[loc.city, loc.state, loc.country].filter(Boolean).join(', ')}
+                    </div>
+                  )}
+                  {loc.address && (
+                    <div className="gp-stored-address">
+                      📮 {loc.address}
+                    </div>
+                  )}
+                  {loc.timestamp && (
+                    <div className="gp-stored-time">
+                      🕒 {new Date(loc.timestamp).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {loadingLocations && (
+          <div className="gp-loading">Loading stored locations...</div>
         )}
 
         {/* Image grid */}
@@ -407,6 +530,45 @@ const galleryCSS = `
   color: #d0f0e8;
 }
 
+/* ── Location from Image section ───────────────────── */
+.gp-location-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+.gp-location-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 6px rgba(74, 222, 128, 0.3);
+}
+
+.gp-location-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.gp-location-label {
+  color: rgba(160, 210, 220, 0.55);
+  min-width: 80px;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.gp-location-value {
+  color: #b8e8d8;
+  flex: 1;
+  word-break: break-word;
+}
+
 /* ── Image grid ─────────────────────────────────────── */
 .gp-grid {
   flex: 1;
@@ -515,5 +677,85 @@ const galleryCSS = `
 }
 .gp-lb-close:hover {
   background: rgba(0, 229, 255, 0.12);
+}
+
+/* ── Stored Locations ────────────────────────────────── */
+.gp-stored-section {
+  margin: 16px 0;
+  padding: 14px;
+  background: rgba(0, 100, 120, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 8px;
+}
+
+.gp-stored-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4ade80;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.gp-stored-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.gp-stored-item {
+  padding: 10px;
+  background: rgba(0, 80, 100, 0.25);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.gp-stored-item:hover {
+  background: rgba(0, 100, 120, 0.35);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.gp-stored-plant {
+  font-size: 12px;
+  font-weight: 600;
+  color: #88d8e8;
+  margin-bottom: 4px;
+}
+
+.gp-stored-coords {
+  font-size: 11px;
+  color: #4ade80;
+  font-family: 'Consolas', monospace;
+  margin-bottom: 2px;
+}
+
+.gp-stored-location {
+  font-size: 10px;
+  color: #88d8e8;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.gp-stored-address {
+  font-size: 10px;
+  color: rgba(160, 210, 220, 0.7);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.gp-stored-time {
+  font-size: 10px;
+  color: rgba(160, 210, 220, 0.5);
+  font-style: italic;
+}
+
+.gp-loading {
+  text-align: center;
+  color: rgba(0, 229, 255, 0.6);
+  font-size: 12px;
+  padding: 10px;
+  font-style: italic;
 }
 `

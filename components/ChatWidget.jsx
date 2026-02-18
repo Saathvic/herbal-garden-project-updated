@@ -3,10 +3,8 @@ import { useState, useRef, useEffect } from 'react'
 const CHAT_API = 'http://localhost:3000/chat'
 
 const EXAMPLES = [
-  'Stress & Anxiety',
   'Digestive Issues',
   'Joint Pain',
-  'Memory & Focus',
   'Skin Problems',
   'Cough & Cold',
 ]
