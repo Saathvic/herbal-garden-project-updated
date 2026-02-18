@@ -12,40 +12,25 @@ body {
 
 .holo-panel {
   position: relative;
-  background: linear-gradient(135deg, rgba(220, 240, 220, 0.12) 0%, rgba(180, 210, 180, 0.06) 100%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(180, 220, 180, 0.35);
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #d4e8d4;
+  border-radius: 12px;
   padding: 18px 22px;
   min-width: 200px;
-  box-shadow: 
-    0 0 25px rgba(120, 180, 120, 0.2),
-    0 8px 32px rgba(0, 0, 0, 0.15),
-    inset 0 0 40px rgba(200, 230, 200, 0.03);
-  animation: holo-pulse 3s ease-in-out infinite;
-}
-
-@keyframes holo-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 25px rgba(120, 180, 120, 0.2), 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 0 40px rgba(200, 230, 200, 0.03); 
-  }
-  50% { 
-    box-shadow: 0 0 35px rgba(140, 200, 140, 0.3), 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 0 50px rgba(200, 230, 200, 0.05); 
-  }
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .holo-header {
   font-size: 16px;
-  font-weight: 500;
-  color: #d4e8d4;
+  font-weight: 600;
+  color: #2e7d32;
   text-transform: uppercase;
   letter-spacing: 3px;
-  text-shadow: 0 0 12px rgba(180, 220, 180, 0.6);
 }
 
 .holo-scientific {
   font-size: 11px;
-  color: rgba(180, 210, 180, 0.75);
+  color: #666;
   font-style: italic;
   margin-top: 4px;
   letter-spacing: 1px;
@@ -53,13 +38,13 @@ body {
 
 .holo-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(160, 200, 160, 0.5), transparent);
+  background: #e0e8e0;
   margin: 12px 0;
 }
 
 .holo-use {
   font-size: 12px;
-  color: #c8dcc8;
+  color: #444;
   letter-spacing: 0.5px;
 }
 
@@ -69,15 +54,15 @@ body {
 
 .holo-label {
   font-size: 9px;
-  color: rgba(160, 190, 160, 0.7);
+  color: #2e7d32;
   letter-spacing: 2px;
   margin-bottom: 5px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .holo-text {
   font-size: 11px;
-  color: #c8dcc8;
+  color: #444;
   line-height: 1.5;
   max-width: 220px;
 }
@@ -86,7 +71,7 @@ body {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: rgba(180, 220, 180, 0.6);
+  border-color: #2e7d32;
   border-style: solid;
 }
 
@@ -461,21 +446,17 @@ body {
   right: 20px;
   transform: translateY(-50%);
   z-index: 900;
-  background: linear-gradient(135deg, rgba(40, 60, 80, 0.15) 0%, rgba(30, 50, 70, 0.08) 100%);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(100, 180, 220, 0.35);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d4e8d4;
+  border-radius: 12px;
   padding: 20px 22px;
   width: 320px;
   max-height: 70vh;
   overflow-y: auto;
-  box-shadow:
-    0 0 30px rgba(80, 160, 220, 0.15),
-    0 8px 32px rgba(0, 0, 0, 0.2),
-    inset 0 0 40px rgba(100, 180, 220, 0.03);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   animation: gemini-slide-in 0.35s ease-out;
   scrollbar-width: thin;
-  scrollbar-color: rgba(100, 180, 220, 0.25) transparent;
+  scrollbar-color: #ccc transparent;
 }
 
 .gemini-panel::-webkit-scrollbar {
@@ -483,7 +464,7 @@ body {
 }
 
 .gemini-panel::-webkit-scrollbar-thumb {
-  background: rgba(100, 180, 220, 0.25);
+  background: #ccc;
   border-radius: 4px;
 }
 
@@ -507,22 +488,20 @@ body {
 
 .gemini-panel-icon {
   font-size: 16px;
-  color: #7ec8e8;
-  text-shadow: 0 0 10px rgba(100, 180, 220, 0.6);
+  color: #2e7d32;
 }
 
 .gemini-panel-title {
   font-size: 14px;
-  font-weight: 500;
-  color: #c8e0f0;
+  font-weight: 600;
+  color: #2e7d32;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(100, 180, 220, 0.4);
 }
 
 .gemini-panel-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(100, 180, 220, 0.5), transparent);
+  background: #e0e8e0;
   margin: 10px 0 14px;
 }
 
@@ -532,26 +511,26 @@ body {
 
 .gemini-label {
   font-size: 9px;
-  color: rgba(140, 190, 220, 0.7);
+  color: #2e7d32;
   letter-spacing: 2px;
   margin-bottom: 5px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .gemini-text {
   font-size: 11px;
-  color: #c0d8e8;
+  color: #444;
   line-height: 1.6;
 }
 
 .gemini-disclaimer {
   font-size: 9px;
-  color: rgba(200, 180, 140, 0.7);
+  color: #999;
   font-style: italic;
   line-height: 1.5;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(200, 180, 140, 0.15);
+  border-top: 1px solid #e0e0e0;
 }
 
 .gemini-loading {
@@ -559,7 +538,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 20px 0;
-  color: rgba(140, 200, 230, 0.8);
+  color: #666;
   font-size: 12px;
   letter-spacing: 0.5px;
 }
@@ -567,8 +546,8 @@ body {
 .gemini-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(100, 180, 220, 0.2);
-  border-top-color: #7ec8e8;
+  border: 2px solid #d4e8d4;
+  border-top-color: #2e7d32;
   border-radius: 50%;
   animation: gemini-spin 0.8s linear infinite;
 }
@@ -582,7 +561,7 @@ body {
   align-items: flex-start;
   gap: 8px;
   padding: 12px 0;
-  color: rgba(230, 160, 140, 0.9);
+  color: #d32f2f;
   font-size: 11px;
   line-height: 1.5;
 }
@@ -596,7 +575,7 @@ body {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: rgba(100, 180, 220, 0.6);
+  border-color: #2e7d32;
   border-style: solid;
 }
 
