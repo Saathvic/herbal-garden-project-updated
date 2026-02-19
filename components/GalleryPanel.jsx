@@ -13,18 +13,71 @@ const BACKEND = 'http://localhost:3000'
  *   isOpen       – boolean
  *   onClose      – () => void
  */
+// ── localStorage helpers ───────────────────────────────────────
+const STORAGE_KEY_PREFIX = 'gallery_'
+
+function loadGalleryFromStorage(plantId) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PREFIX + plantId)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      // Support both old format { images, aiResults } and new { images } with embedded results
+      const images = Array.isArray(parsed.images) ? parsed.images : []
+      // Migrate old format: attach aiResults to images if stored separately
+      if (Array.isArray(parsed.aiResults) && parsed.aiResults.length > 0) {
+        parsed.aiResults.forEach((res, i) => {
+          if (images[i] && !images[i].aiResult) {
+            images[i].aiResult = res
+          }
+        })
+      }
+      return images
+    }
+  } catch (e) {
+    console.warn('Failed to load gallery from localStorage:', e)
+  }
+  return []
+}
+
+function saveGalleryToStorage(plantId, images) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY_PREFIX + plantId,
+      JSON.stringify({ images })
+    )
+  } catch (e) {
+    // If storage is full (large base64 images), warn but don't crash
+    console.warn('Failed to save gallery to localStorage:', e)
+  }
+}
+
 export default function GalleryPanel({ plantId, isOpen, onClose }) {
   const plant = plantData[plantId] || {}
   const fileRef = useRef()
   const { uploading, error, handleFileSelect, identifyPlant, identifying, identifyError } = useImageUpload()
 
-  // Local gallery store (in a real app this would be persisted / fetched)
+  // Persist images (with embedded AI results) in localStorage per plantId
   const [images, setImages] = useState([])
   const [lightbox, setLightbox] = useState(null)  // index or null
-  const [aiResult, setAiResult] = useState(null)
-  // Track the last uploaded File and its GPS data
+  // Track the last uploaded File (for sending to identify endpoint) and index in images
   const [lastUploadedFile, setLastUploadedFile] = useState(null)
+  const [lastUploadIndex, setLastUploadIndex] = useState(-1)
   const [lastGpsData, setLastGpsData] = useState({ latitude: null, longitude: null })
+
+  // Load from localStorage when plantId changes / panel opens
+  useEffect(() => {
+    if (plantId) {
+      const saved = loadGalleryFromStorage(plantId)
+      setImages(saved)
+    }
+  }, [plantId])
+
+  // Persist to localStorage whenever images change
+  useEffect(() => {
+    if (plantId && images.length > 0) {
+      saveGalleryToStorage(plantId, images)
+    }
+  }, [plantId, images])
   
   // Stored plant locations from database
   const [storedLocations, setStoredLocations] = useState([])
@@ -62,8 +115,8 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
     if (record) {
       setImages((prev) => [record, ...prev])
       setLastUploadedFile(file)
+      setLastUploadIndex(0) // new image is prepended at index 0
       setLastGpsData({ latitude: record.latitude, longitude: record.longitude })
-      setAiResult(null)
     }
     // Reset so the same file can be re-selected
     e.target.value = ''
@@ -80,12 +133,24 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
     console.log('Identification result:', res)
     
     if (res) {
-      setAiResult(res)
+      // Embed the AI result directly into the image record
+      setImages(prev => prev.map((img, i) =>
+        i === lastUploadIndex ? { ...img, aiResult: res } : img
+      ))
+      setLastUploadedFile(null) // hide identify button after success
       // Reload stored locations to show the new entry
       if (res.location_stored) {
         loadStoredLocations()
       }
     }
+  }
+
+  const clearGallery = () => {
+    setImages([])
+    setLastUploadedFile(null)
+    setLastUploadIndex(-1)
+    setLastGpsData({ latitude: null, longitude: null })
+    try { localStorage.removeItem(STORAGE_KEY_PREFIX + plantId) } catch {}
   }
 
   const stopProp = (e) => e.stopPropagation()
@@ -122,6 +187,11 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
           >
             {uploading ? '⏳ Processing…' : '＋ Upload Photo'}
           </button>
+          {images.length > 0 && (
+            <button className="gp-clear-btn" onClick={clearGallery} title="Clear all saved gallery data">
+              🗑 Clear Gallery
+            </button>
+          )}
           <input
             ref={fileRef}
             type="file"
@@ -135,7 +205,7 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
         {identifyError && <div className="gp-error">⚠ {identifyError}</div>}
 
         {/* Identify Plant button — shown after an image is uploaded */}
-        {lastUploadedFile && !aiResult && (
+        {lastUploadedFile && !(images[lastUploadIndex]?.aiResult) && (
           <button
             className="gp-identify-btn"
             disabled={identifying}
@@ -149,62 +219,80 @@ export default function GalleryPanel({ plantId, isOpen, onClose }) {
           </button>
         )}
 
-        {/* AI identification result card */}
-        {aiResult && (
-          <div className="gp-ai-card">
-            <div className="gp-ai-card-header">🌿 AI Identification</div>
-            <div className="gp-ai-row">
-              <span className="gp-ai-label">Plant</span>
-              <strong className="gp-ai-value">{aiResult.identified_plant || 'Unknown'}</strong>
-            </div>
-            {aiResult.medical_value && (
-              <div className="gp-ai-row">
-                <span className="gp-ai-label">Medical Value</span>
-                <span className="gp-ai-value">{aiResult.medical_value}</span>
-              </div>
-            )}
-            
-            {/* Location information extracted from image */}
-            {aiResult.location_from_image && aiResult.location_from_image.has_geotag_overlay && (
-              <div className="gp-location-section">
-                <div className="gp-location-header">📍 Location from Image</div>
-                {aiResult.location_from_image.address && (
-                  <div className="gp-location-row">
-                    <span className="gp-location-label">Address</span>
-                    <span className="gp-location-value">{aiResult.location_from_image.address}</span>
+        {/* AI identification results — show ALL stored results from images */}
+        {images.filter(img => img.aiResult).length > 0 && (
+          <div className="gp-ai-results-section">
+            <div className="gp-ai-results-header">🌿 AI Identification Results ({images.filter(img => img.aiResult).length})</div>
+            {images.filter(img => img.aiResult).map((img, idx) => {
+              const r = img.aiResult
+              return (
+                <div key={idx} className="gp-ai-card">
+                  <div className="gp-ai-card-top">
+                    <img src={img.dataUrl} alt="" className="gp-ai-card-thumb" />
+                    <div className="gp-ai-card-info">
+                      <div className="gp-ai-row">
+                        <span className="gp-ai-label">Plant</span>
+                        <strong className="gp-ai-value">{r.identified_plant || 'Unknown'}</strong>
+                      </div>
+                      {r.medical_value && (
+                        <div className="gp-ai-row">
+                          <span className="gp-ai-label">Medical Value</span>
+                          <span className="gp-ai-value">{r.medical_value}</span>
+                        </div>
+                      )}
+                      {img.timestamp && (
+                        <div className="gp-ai-row">
+                          <span className="gp-ai-label">Date</span>
+                          <span className="gp-ai-value">{new Date(img.timestamp).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-                {(aiResult.location_from_image.city || aiResult.location_from_image.state || aiResult.location_from_image.country) && (
-                  <div className="gp-location-row">
-                    <span className="gp-location-label">Location</span>
-                    <span className="gp-location-value">
-                      {[aiResult.location_from_image.city, aiResult.location_from_image.state, aiResult.location_from_image.country]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </span>
-                  </div>
-                )}
-                {aiResult.location_from_image.coordinates && (
-                  <div className="gp-location-row">
-                    <span className="gp-location-label">Coordinates</span>
-                    <span className="gp-location-value">{aiResult.location_from_image.coordinates}</span>
-                  </div>
-                )}
-                {aiResult.location_from_image.timestamp && (
-                  <div className="gp-location-row">
-                    <span className="gp-location-label">Timestamp</span>
-                    <span className="gp-location-value">{aiResult.location_from_image.timestamp}</span>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {aiResult.location_stored && (
-              <div className="gp-ai-row">
-                <span className="gp-ai-label">Database</span>
-                <span className="gp-ai-value" style={{ color: '#4ade80' }}>✓ Location stored</span>
-              </div>
-            )}
+
+                  {/* Location information extracted from image */}
+                  {r.location_from_image && r.location_from_image.has_geotag_overlay && (
+                    <div className="gp-location-section">
+                      <div className="gp-location-header">📍 Location from Image</div>
+                      {r.location_from_image.address && (
+                        <div className="gp-location-row">
+                          <span className="gp-location-label">Address</span>
+                          <span className="gp-location-value">{r.location_from_image.address}</span>
+                        </div>
+                      )}
+                      {(r.location_from_image.city || r.location_from_image.state || r.location_from_image.country) && (
+                        <div className="gp-location-row">
+                          <span className="gp-location-label">Location</span>
+                          <span className="gp-location-value">
+                            {[r.location_from_image.city, r.location_from_image.state, r.location_from_image.country]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </span>
+                        </div>
+                      )}
+                      {r.location_from_image.coordinates && (
+                        <div className="gp-location-row">
+                          <span className="gp-location-label">Coordinates</span>
+                          <span className="gp-location-value">{r.location_from_image.coordinates}</span>
+                        </div>
+                      )}
+                      {r.location_from_image.timestamp && (
+                        <div className="gp-location-row">
+                          <span className="gp-location-label">Timestamp</span>
+                          <span className="gp-location-value">{r.location_from_image.timestamp}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {r.location_stored && (
+                    <div className="gp-ai-row">
+                      <span className="gp-ai-label">Database</span>
+                      <span className="gp-ai-value" style={{ color: '#4ade80' }}>✓ Location stored</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 
@@ -413,6 +501,25 @@ const galleryCSS = `
 /* ── Upload bar ─────────────────────────────────────── */
 .gp-upload-bar {
   margin-bottom: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.gp-clear-btn {
+  padding: 10px 14px;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.gp-clear-btn:hover {
+  background: #fce4e4;
+  border-color: #b71c1c;
 }
 
 .gp-upload-btn {
@@ -491,6 +598,50 @@ const galleryCSS = `
   margin-bottom: 12px;
   animation: gp-fade-in 0.3s ease-out;
 }
+
+/* ── AI Results section ─────────────────────────────── */
+.gp-ai-results-section {
+  margin-bottom: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c8e6c9 transparent;
+}
+.gp-ai-results-section::-webkit-scrollbar { width: 4px; }
+.gp-ai-results-section::-webkit-scrollbar-thumb {
+  background: #c8e6c9;
+  border-radius: 4px;
+}
+.gp-ai-results-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #228B22;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 4px 0;
+  z-index: 1;
+}
+.gp-ai-card-top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.gp-ai-card-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #c8e6c9;
+  flex-shrink: 0;
+}
+.gp-ai-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .gp-ai-card-header {
   font-size: 12px;
   font-weight: 600;
