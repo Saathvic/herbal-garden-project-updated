@@ -5,28 +5,37 @@ const path = require("path");
 const multer = require("multer");
 const { Pinecone } = require("@pinecone-database/pinecone");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 // ── Config ─────────────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || "ayurveda-kb-v2";
 const PINECONE_NAMESPACE = process.env.PINECONE_NAMESPACE || "ayurveda";
 const PORT = process.env.PORT || 3000;
 
-const CHAT_MODEL = "gemini-3-flash-preview";
+const GEMINI_CHAT_MODEL = "gemini-3-flash-preview";
+const GROQ_CHAT_MODEL = "llama-3.3-70b-versatile";
 
 if (!GEMINI_API_KEY || !PINECONE_API_KEY) {
   console.error("❌ Missing GEMINI_API_KEY or PINECONE_API_KEY in .env");
   process.exit(1);
 }
+if (!GROQ_API_KEY) {
+  console.warn("⚠️  GROQ_API_KEY not set — Groq fallback will be unavailable");
+}
 
 // ── Initialize clients ─────────────────────────────────────────────
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const chatModel = genAI.getGenerativeModel({ model: CHAT_MODEL });
+const chatModel = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL });
 // Use same model for vision - Gemini 3 supports both text and images
-const visionModel = genAI.getGenerativeModel({ model: CHAT_MODEL});
+const visionModel = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL });
+
+// Groq client (fallback when Gemini rate-limits)
+const groq = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
 const pinecone = new Pinecone({ apiKey: PINECONE_API_KEY });
 const index = pinecone.index(PINECONE_INDEX_NAME);
@@ -115,6 +124,45 @@ function buildContext(hits) {
     .join("\n\n");
 }
 
+/**
+ * Generate text with automatic fallback: Gemini → Groq.
+ * Returns { text, model } so the caller knows which model answered.
+ */
+async function generateWithFallback(prompt) {
+  // ── Try Gemini first ──
+  try {
+    const result = await chatModel.generateContent(prompt);
+    const text = result.response.text();
+    console.log(`✅ Response from Gemini (${GEMINI_CHAT_MODEL})`);
+    return { text, model: GEMINI_CHAT_MODEL };
+  } catch (geminiErr) {
+    const is429 = geminiErr.message?.includes("429") ||
+                  geminiErr.message?.includes("quota") ||
+                  geminiErr.message?.includes("rate");
+    console.warn(`⚠️  Gemini failed${is429 ? " (rate-limited)" : ""}: ${geminiErr.message}`);
+
+    if (!groq) {
+      // No Groq key configured — rethrow original error
+      throw geminiErr;
+    }
+
+    // ── Fallback to Groq ──
+    console.log(`🔄 Falling back to Groq (${GROQ_CHAT_MODEL})...`);
+    const groqResult = await groq.chat.completions.create({
+      model: GROQ_CHAT_MODEL,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: prompt.replace(SYSTEM_PROMPT, "").trim() },
+      ],
+      temperature: 0.4,
+      max_tokens: 2048,
+    });
+    const text = groqResult.choices?.[0]?.message?.content || "";
+    console.log(`✅ Response from Groq (${GROQ_CHAT_MODEL})`);
+    return { text, model: GROQ_CHAT_MODEL };
+  }
+}
+
 // Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", index: PINECONE_INDEX_NAME });
@@ -147,11 +195,10 @@ app.post("/chat", async (req, res) => {
     // 2. Build context from retrieved documents
     const context = buildContext(hits);
 
-    // 3. Send to Gemini with safety prompt
+    // 3. Send to LLM with safety prompt (Gemini → Groq fallback)
     const prompt = `${SYSTEM_PROMPT}\n\n--- CONTEXT ---\n${context}\n\n--- USER QUERY ---\n${userQuery}`;
 
-    const result = await chatModel.generateContent(prompt);
-    const responseText = result.response.text();
+    const { text: responseText, model: usedModel } = await generateWithFallback(prompt);
 
     // 4. Parse and return structured response
     const cleaned = responseText
@@ -166,6 +213,7 @@ app.post("/chat", async (req, res) => {
       recommended_herbs: parsed.recommended_herbs,
       preparation: parsed.preparation,
       disclaimer: parsed.disclaimer,
+      _model: usedModel, // so you can see which model responded
     });
   } catch (err) {
     console.error("❌ /chat error:", err.message);

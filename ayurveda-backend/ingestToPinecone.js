@@ -89,7 +89,7 @@ async function ingest() {
       console.log(`   → ${record.plantName} for ${record.condition}`);
     }
     
-    await namespace.upsertRecords(batch);
+    await namespace.upsertRecords({ records: batch });
   }
 
   // 5. Wait briefly for indexing
